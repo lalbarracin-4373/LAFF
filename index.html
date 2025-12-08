@@ -193,7 +193,6 @@
 
           <div class="btn-group">
             <button id="loginBtn" class="btn-primary">Iniciar sesión</button>
-            <button id="registerBtn" class="btn-secondary">Crear cuenta</button>
           </div>
 
           <div class="status" id="authStatus"></div>
@@ -284,7 +283,6 @@ const analytics = getAnalytics(app);
     // 3) ELEMENTOS DEL DOM
     //--------------------------------------------
     const loginBtn       = document.getElementById("loginBtn");
-    const registerBtn    = document.getElementById("registerBtn");
     const logoutBtn      = document.getElementById("logoutBtn");
     const emailInput     = document.getElementById("email");
     const passwordInput  = document.getElementById("password");
@@ -359,25 +357,6 @@ const analytics = getAnalytics(app);
         authStatus.classList.remove("error");
       } catch (err) {
         authStatus.textContent = "Error al iniciar sesión: " + err.message;
-        authStatus.classList.add("error");
-      }
-    });
-
-    registerBtn.addEventListener("click", async () => {
-      authStatus.textContent = "";
-      try {
-        const email = emailInput.value.trim();
-        const pass  = passwordInput.value;
-        if (!email || !pass) {
-          authStatus.textContent = "Completa email y contraseña.";
-          authStatus.classList.add("error");
-          return;
-        }
-        const cred = await auth.createUserWithEmailAndPassword(email, pass);
-        authStatus.textContent = "Cuenta creada correctamente.";
-        authStatus.classList.remove("error");
-      } catch (err) {
-        authStatus.textContent = "Error al crear cuenta: " + err.message;
         authStatus.classList.add("error");
       }
     });
