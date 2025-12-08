@@ -5,14 +5,9 @@
   <title>Reservas de Equipamiento</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- FullCalendar (JS + CSS desde CDN) -->
+  <!-- FullCalendar (CSS + JS) -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/6.1.19/index.global.min.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/6.1.19/index.global.min.js"></script>
-
-  <!-- Firebase SDK (compat, vía CDN) -->
-  <script src="https://www.gstatic.com/firebasejs/12.6.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/12.6.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore-compat.js"></script>
 
   <style>
     :root {
@@ -23,19 +18,16 @@
       --border: #dddddd;
       --danger: #c0392b;
     }
-
     * {
       box-sizing: border-box;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
-
     body {
       margin: 0;
       padding: 0;
       background: var(--bg);
       color: #333;
     }
-
     header {
       background: var(--primary);
       color: #fff;
@@ -45,34 +37,28 @@
       justify-content: space-between;
       flex-wrap: wrap;
     }
-
     header h1 {
       margin: 0;
       font-size: 1.2rem;
     }
-
     .user-info {
       font-size: 0.9rem;
     }
-
     main {
       padding: 1rem;
       max-width: 1200px;
       margin: 0 auto;
     }
-
     .layout {
       display: grid;
       grid-template-columns: minmax(260px, 320px) 1fr;
       gap: 1rem;
     }
-
     @media (max-width: 800px) {
       .layout {
         grid-template-columns: 1fr;
       }
     }
-
     .card {
       background: var(--card-bg);
       border-radius: 8px;
@@ -80,19 +66,16 @@
       padding: 1rem;
       box-shadow: 0 2px 6px rgba(0,0,0,0.06);
     }
-
     .card h2 {
       margin-top: 0;
       font-size: 1.1rem;
       margin-bottom: 0.75rem;
     }
-
     label {
       display: block;
       font-size: 0.85rem;
       margin-bottom: 0.2rem;
     }
-
     input[type="email"],
     input[type="password"],
     select {
@@ -103,7 +86,6 @@
       margin-bottom: 0.6rem;
       font-size: 0.9rem;
     }
-
     button {
       border: none;
       border-radius: 4px;
@@ -111,44 +93,32 @@
       font-size: 0.9rem;
       cursor: pointer;
     }
-
     .btn-primary {
       background: var(--primary);
       color: #fff;
     }
-
-    .btn-secondary {
-      background: var(--primary-light);
-      color: #003142;
-    }
-
     .btn-danger {
       background: var(--danger);
       color: #fff;
     }
-
     .btn-group {
       display: flex;
       flex-wrap: wrap;
       gap: 0.5rem;
       margin-top: 0.4rem;
     }
-
     .small-text {
       font-size: 0.8rem;
       color: #555;
     }
-
     .status {
       margin-top: 0.5rem;
       font-size: 0.8rem;
       min-height: 1.1em;
     }
-
     .status.error {
       color: var(--danger);
     }
-
     .toolbar {
       display: flex;
       flex-wrap: wrap;
@@ -156,13 +126,11 @@
       align-items: center;
       margin-bottom: 0.7rem;
     }
-
     .toolbar-item {
       display: flex;
       flex-direction: column;
       font-size: 0.8rem;
     }
-
     #calendar {
       background: #fff;
       border-radius: 8px;
@@ -181,7 +149,7 @@
 
   <main>
     <div class="layout">
-      <!-- Panel de login / registro -->
+      <!-- Panel de login -->
       <section class="card">
         <h2>Acceso de usuarios</h2>
         <div id="authSection">
@@ -198,7 +166,7 @@
           <div class="status" id="authStatus"></div>
 
           <p class="small-text">
-            Puedes desactivar el botón "Crear cuenta" y crear los usuarios manualmente desde la consola de Firebase si quieres control total.
+            Si no tienes usuario, solicita uno al administrador.
           </p>
         </div>
 
@@ -209,16 +177,14 @@
         </div>
       </section>
 
-      <!-- Panel del calendario -->
+      <!-- Panel de calendario -->
       <section class="card">
         <h2>Calendario de reservas</h2>
 
         <div class="toolbar">
           <div class="toolbar-item">
             <label for="equipmentSelect">Equipamiento</label>
-            <select id="equipmentSelect">
-              <!-- Se rellena desde JS -->
-            </select>
+            <select id="equipmentSelect"></select>
           </div>
           <div class="toolbar-item">
             <label for="durationSelect">Duración</label>
@@ -241,37 +207,42 @@
     </div>
   </main>
 
-  <script>
-    //--------------------------------------------
-    // 1) CONFIGURACIÓN DE FIREBASE
-    //--------------------------------------------
-    // ⚠️ REEMPLAZA ESTE OBJETO CON TU firebaseConfig
-    // tomado de la consola de Firebase (Project settings → General → SDK setup & configuration)
+  <!-- Firebase + lógica (SDK modular, recomendado por Firebase) -->
+  <script type="module">
+    // Importar SDKs desde CDN (forma recomendada para 12.6.0)
+    // Docs: https://firebase.google.com/docs/web/alt-setup 
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+    import {
+      getAuth,
+      signInWithEmailAndPassword,
+      onAuthStateChanged,
+      signOut
+    } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+    import {
+      getFirestore,
+      collection,
+      addDoc,
+      query,
+      where,
+      orderBy,
+      onSnapshot,
+      Timestamp,
+      serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+
+    // Configuración que me pasaste
     const firebaseConfig = {
       apiKey: "AIzaSyA98AI1BeF-f6WWiQHe_bKoBe0KlaFwfcE",
       authDomain: "laboratory-schedules.firebaseapp.com",
       projectId: "laboratory-schedules"
-      // storageBucket: "laboratory-schedules.firebasestorage.app",
-      // messagingSenderId: "1068255517666",
-      // appId: "1:1068255517666:web:5ccd42656efb9a3bcb37bb",
-      // measurementId: "G-6104LTP3RE"
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);    
-
-
-
     };
 
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db   = firebase.firestore();
+    // Inicializar Firebase
+    const app  = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db   = getFirestore(app);
 
-    //--------------------------------------------
-    // 2) EQUIPOS DEFINIDOS (puedes editar esta lista)
-    //--------------------------------------------
+    // Equipos del laboratorio (puedes editar esta lista)
     const EQUIPMENTS = [
       { id: "microscopio1", name: "Microscopio 1" },
       { id: "microscopio2", name: "Microscopio 2" },
@@ -279,24 +250,20 @@ const analytics = getAnalytics(app);
       { id: "centrifuga",   name: "Centrífuga" }
     ];
 
-    //--------------------------------------------
-    // 3) ELEMENTOS DEL DOM
-    //--------------------------------------------
-    const loginBtn       = document.getElementById("loginBtn");
-    const logoutBtn      = document.getElementById("logoutBtn");
-    const emailInput     = document.getElementById("email");
-    const passwordInput  = document.getElementById("password");
-    const authStatus     = document.getElementById("authStatus");
-    const authSection    = document.getElementById("authSection");
-    const logoutSection  = document.getElementById("logoutSection");
-    const userEmailLabel = document.getElementById("userEmailLabel");
-    const loggedUserEmail= document.getElementById("loggedUserEmail");
-    const equipmentSelect= document.getElementById("equipmentSelect");
-    const durationSelect = document.getElementById("durationSelect");
+    // Referencias al DOM
+    const loginBtn        = document.getElementById("loginBtn");
+    const logoutBtn       = document.getElementById("logoutBtn");
+    const emailInput      = document.getElementById("email");
+    const passwordInput   = document.getElementById("password");
+    const authStatus      = document.getElementById("authStatus");
+    const authSection     = document.getElementById("authSection");
+    const logoutSection   = document.getElementById("logoutSection");
+    const userEmailLabel  = document.getElementById("userEmailLabel");
+    const loggedUserEmail = document.getElementById("loggedUserEmail");
+    const equipmentSelect = document.getElementById("equipmentSelect");
+    const durationSelect  = document.getElementById("durationSelect");
 
-    //--------------------------------------------
-    // 4) INICIALIZAR SELECT DE EQUIPOS
-    //--------------------------------------------
+    // Llenar el select de equipamiento
     EQUIPMENTS.forEach(eq => {
       const opt = document.createElement("option");
       opt.value = eq.id;
@@ -304,13 +271,12 @@ const analytics = getAnalytics(app);
       equipmentSelect.appendChild(opt);
     });
 
-    //--------------------------------------------
-    // 5) FULLCALENDAR
-    //--------------------------------------------
+    // Variables para calendario y listener de Firestore
     let calendar = null;
-    let unsubscribeReservations = null; // para Firestore listener
+    let unsubscribeReservations = null;
     let currentUser = null;
 
+    // Inicializar FullCalendar una vez que el DOM está listo
     document.addEventListener("DOMContentLoaded", () => {
       const calendarEl = document.getElementById("calendar");
 
@@ -333,40 +299,43 @@ const analytics = getAnalytics(app);
       });
 
       calendar.render();
-
-      // Suscribir a reservas del equipo inicialmente seleccionado
       subscribeToEquipmentReservations(equipmentSelect.value);
     });
 
-    //--------------------------------------------
-    // 6) MANEJO DE AUTH
-    //--------------------------------------------
-
+    // LOGIN
     loginBtn.addEventListener("click", async () => {
       authStatus.textContent = "";
+      authStatus.classList.remove("error");
+
       try {
         const email = emailInput.value.trim();
         const pass  = passwordInput.value;
+
         if (!email || !pass) {
           authStatus.textContent = "Completa email y contraseña.";
           authStatus.classList.add("error");
           return;
         }
-        const cred = await auth.signInWithEmailAndPassword(email, pass);
+
+        await signInWithEmailAndPassword(auth, email, pass);
+
         authStatus.textContent = "Inicio de sesión correcto.";
-        authStatus.classList.remove("error");
       } catch (err) {
         authStatus.textContent = "Error al iniciar sesión: " + err.message;
         authStatus.classList.add("error");
+        console.error(err);
       }
     });
 
+    // LOGOUT
     logoutBtn.addEventListener("click", async () => {
-      await auth.signOut();
+      await signOut(auth);
     });
 
-    auth.onAuthStateChanged(user => {
+    // CAMBIO DE ESTADO DE AUTENTICACIÓN
+    onAuthStateChanged(auth, (user) => {
       currentUser = user;
+
       if (user) {
         authSection.style.display   = "none";
         logoutSection.style.display = "block";
@@ -380,37 +349,38 @@ const analytics = getAnalytics(app);
       }
     });
 
-    //--------------------------------------------
-    // 7) FIRESTORE: SUSCRIPCIÓN A LAS RESERVAS
-    //--------------------------------------------
+    // SUSCRIPCIÓN A RESERVAS POR EQUIPO
     function subscribeToEquipmentReservations(equipmentId) {
-      if (!db) return;
-
-      // Detener listener anterior
       if (unsubscribeReservations) {
         unsubscribeReservations();
         unsubscribeReservations = null;
       }
 
-      // Listener en tiempo real a la colección "reservations" para ese equipo
-      unsubscribeReservations = db.collection("reservations")
-        .where("equipmentId", "==", equipmentId)
-        .orderBy("start", "asc")
-        .onSnapshot((snapshot) => {
-          // Limpiar eventos y volver a cargarlos
-          calendar.removeAllEvents();
-          snapshot.forEach(doc => {
-            const data = doc.data();
-            calendar.addEvent({
-              id: doc.id,
-              title: data.userEmail || "Reserva",
-              start: data.start.toDate ? data.start.toDate() : data.start,
-              end: data.end.toDate ? data.end.toDate() : data.end
-            });
+      const q = query(
+        collection(db, "reservations"),
+        where("equipmentId", "==", equipmentId),
+        orderBy("start", "asc")
+      );
+
+      unsubscribeReservations = onSnapshot(q, (snapshot) => {
+        if (!calendar) return;
+
+        calendar.removeAllEvents();
+        snapshot.forEach(docSnap => {
+          const data = docSnap.data();
+          const start = data.start instanceof Timestamp ? data.start.toDate() : data.start;
+          const end   = data.end   instanceof Timestamp ? data.end.toDate()   : data.end;
+
+          calendar.addEvent({
+            id: docSnap.id,
+            title: data.userEmail || "Reserva",
+            start,
+            end
           });
-        }, (error) => {
-          console.error("Error escuchando reservas:", error);
         });
+      }, (error) => {
+        console.error("Error escuchando reservas:", error);
+      });
     }
 
     equipmentSelect.addEventListener("change", () => {
@@ -418,11 +388,8 @@ const analytics = getAnalytics(app);
       subscribeToEquipmentReservations(equipmentId);
     });
 
-    //--------------------------------------------
-    // 8) CREAR RESERVA AL SELECCIONAR RANGO
-    //--------------------------------------------
+    // CREAR RESERVA AL SELECCIONAR SLOT
     async function handleDateSelect(selectionInfo) {
-      // Si no hay usuario logueado, no dejamos reservar
       if (!currentUser) {
         alert("Debes iniciar sesión para reservar.");
         calendar.unselect();
@@ -433,10 +400,12 @@ const analytics = getAnalytics(app);
       const durationMin = parseInt(durationSelect.value, 10) || 60;
 
       const start = selectionInfo.start;
-      const end = new Date(start.getTime() + durationMin * 60000);
+      const end   = new Date(start.getTime() + durationMin * 60000);
+
+      const eqName = (EQUIPMENTS.find(e => e.id === equipmentId) || {}).name || equipmentId;
 
       const confirmText = `
-Equipo: ${getEquipmentName(equipmentId)}
+Equipo: ${eqName}
 Usuario: ${currentUser.email}
 Inicio: ${start.toLocaleString()}
 Fin: ${end.toLocaleString()}
@@ -451,15 +420,14 @@ Duración: ${durationMin} minutos
       }
 
       try {
-        await db.collection("reservations").add({
+        await addDoc(collection(db, "reservations"), {
           equipmentId,
-          start: firebase.firestore.Timestamp.fromDate(start),
-          end:   firebase.firestore.Timestamp.fromDate(end),
+          start: Timestamp.fromDate(start),
+          end:   Timestamp.fromDate(end),
           userId: currentUser.uid,
           userEmail: currentUser.email,
-          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+          createdAt: serverTimestamp()
         });
-        // El listener onSnapshot actualiza el calendario automáticamente
       } catch (err) {
         console.error("Error creando reserva:", err);
         alert("Error al crear la reserva: " + err.message);
@@ -467,12 +435,6 @@ Duración: ${durationMin} minutos
 
       calendar.unselect();
     }
-
-    function getEquipmentName(id) {
-      const eq = EQUIPMENTS.find(e => e.id === id);
-      return eq ? eq.name : id;
-    }
   </script>
 </body>
 </html>
-
