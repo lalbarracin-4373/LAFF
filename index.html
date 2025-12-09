@@ -355,33 +355,43 @@
         unsubscribeReservations();
         unsubscribeReservations = null;
       }
-
+    
       const q = query(
         collection(db, "reservations"),
-        where("equipmentId", "==", equipmentId),
-        orderBy("start", "asc")
+        where("equipmentId", "==", equipmentId)
+        // Not using orderBy here to avoid composite index issues
       );
-
+    
       unsubscribeReservations = onSnapshot(q, (snapshot) => {
         if (!calendar) return;
-
+    
         calendar.removeAllEvents();
+    
+        // Convert docs into an array
+        const events = [];
         snapshot.forEach(docSnap => {
           const data = docSnap.data();
+    
           const start = data.start instanceof Timestamp ? data.start.toDate() : data.start;
           const end   = data.end   instanceof Timestamp ? data.end.toDate()   : data.end;
-
-          calendar.addEvent({
+    
+          events.push({
             id: docSnap.id,
             title: data.userEmail || "Reserva",
             start,
             end
           });
         });
+    
+        // Sort on the client by start time
+        events.sort((a, b) => a.start - b.start);
+    
+        // Add events to calendar
+        events.forEach(ev => calendar.addEvent(ev));
       }, (error) => {
         console.error("Error escuchando reservas:", error);
       });
-    }
+}
 
     equipmentSelect.addEventListener("change", () => {
       const equipmentId = equipmentSelect.value;
@@ -438,3 +448,4 @@ Duración: ${durationMin} minutos
   </script>
 </body>
 </html>
+
