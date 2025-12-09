@@ -200,16 +200,14 @@
           </div>
         </div>
 
-
         <div id="calendar"></div>
       </section>
     </div>
   </main>
 
-  <!-- Firebase + lógica (SDK modular, recomendado por Firebase) -->
+  <!-- Firebase + lógica (SDK modular) -->
   <script type="module">
-    // Importar SDKs desde CDN (forma recomendada para 12.6.0)
-    // Docs: https://firebase.google.com/docs/web/alt-setup 
+    // Importar SDKs desde CDN
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
     import {
       getAuth,
@@ -223,24 +221,23 @@
       addDoc,
       query,
       where,
-      orderBy,
       onSnapshot,
       Timestamp,
       serverTimestamp
     } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 
-    // Configuración que me pasaste
+    // Configuración Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyA98AI1BeF-f6WWiQHe_bKoBe0KlaFwfcE",
       authDomain: "laboratory-schedules.firebaseapp.com",
       projectId: "laboratory-schedules"
     };
 
-    // Inicializar Firebase
     const app  = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db   = getFirestore(app);
-    // Salas/Labs y equipos
+
+    // --- LABS y equipos ---
     const LABS = [
       {
         id: "lab403_cultivo",
@@ -282,21 +279,21 @@
         id: "lab403_general",
         name: "LAB403 – General",
         equipments: [
-          { id: "lab403_wb",           name: "Western Blot" },
-          { id: "lab403_mic_fluor",    name: "Microscopio FLUORESCENCIA" }
+          { id: "lab403_wb",        name: "Western Blot" },
+          { id: "lab403_mic_fluor", name: "Microscopio FLUORESCENCIA" }
         ]
       },
       {
         id: "lab_a103",
         name: "LAB A103",
         equipments: [
-          { id: "lab_a103_flujo",      name: "Flujo" },
-          { id: "lab_a103_anaerobio",  name: "Cabina anaerobiosis" }
+          { id: "lab_a103_flujo",     name: "Flujo" },
+          { id: "lab_a103_anaerobio", name: "Cabina anaerobiosis" }
         ]
       }
     ];
 
-    // Referencias al DOM
+    // --- Referencias DOM ---
     const loginBtn        = document.getElementById("loginBtn");
     const logoutBtn       = document.getElementById("logoutBtn");
     const emailInput      = document.getElementById("email");
@@ -309,95 +306,89 @@
     const labSelect       = document.getElementById("labSelect");
     const equipmentSelect = document.getElementById("equipmentSelect");
 
-    
-    // Rellena los selects de lab y equipo
-    function populateLabsAndEquipments() {
-      labSelect.innerHTML = "";
-      equipmentSelect.innerHTML = "";
-    
-      LABS.forEach((lab, index) => {
-        const opt = document.createElement("option");
-        opt.value = lab.id;
-        opt.textContent = lab.name;
-        labSelect.appendChild(opt);
-      });
-    
-      // Seleccionamos el primer LAB por defecto
-      if (LABS.length > 0) {
-        populateEquipmentsForLab(LABS[0].id);
-      }
-    }
-    
+    // --- Poblar selects Lab / Equipo ---
     function populateEquipmentsForLab(labId) {
       equipmentSelect.innerHTML = "";
       const lab = LABS.find(l => l.id === labId);
       if (!lab) return;
-    
-      lab.equipments.forEach((eq, index) => {
+
+      lab.equipments.forEach(eq => {
         const opt = document.createElement("option");
         opt.value = eq.id;
         opt.textContent = eq.name;
         equipmentSelect.appendChild(opt);
       });
     }
-    
-    // Cuando cambia el LAB, actualizamos la lista de equipos y el calendario
+
+    function populateLabsAndEquipments() {
+      labSelect.innerHTML = "";
+      equipmentSelect.innerHTML = "";
+
+      LABS.forEach(lab => {
+        const opt = document.createElement("option");
+        opt.value = lab.id;
+        opt.textContent = lab.name;
+        labSelect.appendChild(opt);
+      });
+
+      if (LABS.length > 0) {
+        populateEquipmentsForLab(LABS[0].id);
+      }
+    }
+
     labSelect.addEventListener("change", () => {
       const labId = labSelect.value;
       populateEquipmentsForLab(labId);
-    
+
       if (equipmentSelect.value) {
         subscribeToEquipmentReservations(equipmentSelect.value);
       }
     });
-    
-    // Cuando cambia el equipo, actualizamos sus reservas
+
     equipmentSelect.addEventListener("change", () => {
       if (equipmentSelect.value) {
         subscribeToEquipmentReservations(equipmentSelect.value);
       }
     });
-    
-    // Inicializar selects al cargar el script
+
+    // Inicializar selects (DOM ya existe porque script está al final)
     populateLabsAndEquipments();
 
-
-
-
-    // Variables para calendario y listener de Firestore
+    // --- Calendario & estado global ---
     let calendar = null;
     let unsubscribeReservations = null;
     let currentUser = null;
 
-    // Inicializar FullCalendar una vez que el DOM está listo
-    document.addEventListener("DOMContentLoaded", () => {
-      const calendarEl = document.getElementById("calendar");
-
-      calendar = new FullCalendar.Calendar(calendarEl, {
-        initialView: "timeGridWeek",
-        locale: "es",
-        slotDuration: "00:15:00",     // grilla de 15 minutos
-        snapDuration: "00:15:00",     // arrastre salta de a 15 minutos
-        slotMinTime: "07:00:00",
-        slotMaxTime: "22:00:00",
-        allDaySlot: false,
-        selectable: true,
-        selectMirror: true,
-        nowIndicator: true,
-        headerToolbar: {
-          left: "prev,next today",
-          center: "title",
-          right: "timeGridDay,timeGridWeek,dayGridMonth"
-        },
-        selectAllow: () => !!currentUser,  // solo seleccionar si está logueado (si ya lo usabas)
-        select: handleDateSelect
-      });
-
-      calendar.render();
-      subscribeToEquipmentReservations(equipmentSelect.value);
+    // Inicializar FullCalendar inmediatamente
+    const calendarEl = document.getElementById("calendar");
+    calendar = new FullCalendar.Calendar(calendarEl, {
+      initialView: "timeGridWeek",
+      locale: "es",
+      slotDuration: "00:15:00",     // grilla 15 min
+      snapDuration: "00:15:00",     // arrastre de a 15 min
+      slotMinTime: "07:00:00",
+      slotMaxTime: "22:00:00",
+      allDaySlot: false,
+      selectable: true,
+      selectMirror: true,
+      nowIndicator: true,
+      headerToolbar: {
+        left: "prev,next today",
+        center: "title",
+        right: "timeGridDay,timeGridWeek,dayGridMonth"
+      },
+      selectAllow: () => !!currentUser,  // solo seleccionar logueado
+      select: handleDateSelect
     });
 
-    // LOGIN
+    calendar.render();
+
+    // Suscribirse al equipo inicial (si existe)
+    if (equipmentSelect.value) {
+      subscribeToEquipmentReservations(equipmentSelect.value);
+    }
+
+    // --- LOGIN ---
     loginBtn.addEventListener("click", async () => {
       authStatus.textContent = "";
       authStatus.classList.remove("error");
@@ -413,7 +404,6 @@
         }
 
         await signInWithEmailAndPassword(auth, email, pass);
-
         authStatus.textContent = "Inicio de sesión correcto.";
       } catch (err) {
         authStatus.textContent = "Error al iniciar sesión: " + err.message;
@@ -422,12 +412,12 @@
       }
     });
 
-    // LOGOUT
+    // --- LOGOUT ---
     logoutBtn.addEventListener("click", async () => {
       await signOut(auth);
     });
 
-    // CAMBIO DE ESTADO DE AUTENTICACIÓN
+    // --- CAMBIO DE ESTADO DE AUTH ---
     onAuthStateChanged(auth, (user) => {
       currentUser = user;
 
@@ -444,96 +434,90 @@
       }
     });
 
-    // SUSCRIPCIÓN A RESERVAS POR EQUIPO
+    // --- SUSCRIPCIÓN A RESERVAS ---
     function subscribeToEquipmentReservations(equipmentId) {
       if (unsubscribeReservations) {
         unsubscribeReservations();
         unsubscribeReservations = null;
       }
-    
+
       const q = query(
         collection(db, "reservations"),
         where("equipmentId", "==", equipmentId)
-        // Not using orderBy here to avoid composite index issues
       );
-    
+
       unsubscribeReservations = onSnapshot(q, (snapshot) => {
         if (!calendar) return;
-    
+
         calendar.removeAllEvents();
-    
-        // Convert docs into an array
+
         const events = [];
         snapshot.forEach(docSnap => {
           const data = docSnap.data();
           const start = data.start instanceof Timestamp ? data.start.toDate() : data.start;
           const end   = data.end   instanceof Timestamp ? data.end.toDate()   : data.end;
-    
+
           const labLabel  = data.labName || data.labId || "";
           const eqLabel   = data.equipmentName || data.equipmentId || "Equipo";
           const userLabel = data.userEmail || "Reserva";
-          
+
           let title = `${eqLabel} (${userLabel})`;
           if (labLabel) {
             title = `${labLabel} – ${eqLabel} (${userLabel})`;
           }
-          
+
           events.push({
             id: docSnap.id,
             title,
             start,
             end
           });
-
         });
-    
-        // Sort on the client by start time
+
         events.sort((a, b) => a.start - b.start);
-    
-        // Add events to calendar
         events.forEach(ev => calendar.addEvent(ev));
       }, (error) => {
         console.error("Error escuchando reservas:", error);
       });
-}
+    }
 
-    // CREAR RESERVA AL SELECCIONAR SLOT
-   async function handleDateSelect(selectionInfo) {
+    // --- CREAR RESERVA ---
+    async function handleDateSelect(selectionInfo) {
       if (!currentUser) {
         alert("Debes iniciar sesión para reservar.");
         calendar.unselect();
         return;
       }
-    
-      const labId = labSelect.value;
+
+      const labId       = labSelect.value;
       const equipmentId = equipmentSelect.value;
-    
+
       const lab = LABS.find(l => l.id === labId);
       const eq  = lab?.equipments.find(e => e.id === equipmentId);
-    
+
       const start = selectionInfo.start;
       const end   = selectionInfo.end;
       const durationMin = Math.round((end.getTime() - start.getTime()) / 60000);
-    
+
       const eqLabel  = eq ? eq.name : equipmentId;
       const labLabel = lab ? lab.name : labId;
-    
+
       const confirmText = `
-    Sala/LAB: ${labLabel}
-    Equipo: ${eqLabel}
-    Usuario: ${currentUser.email}
-    Inicio: ${start.toLocaleString()}
-    Fin: ${end.toLocaleString()}
-    Duración: ${durationMin} minutos
-    
-    ¿Confirmar reserva?`;
-    
+Sala/LAB: ${labLabel}
+Equipo: ${eqLabel}
+Usuario: ${currentUser.email}
+Inicio: ${start.toLocaleString()}
+Fin: ${end.toLocaleString()}
+Duración: ${durationMin} minutos
+
+¿Confirmar reserva?`;
+
       const ok = confirm(confirmText);
       if (!ok) {
         calendar.unselect();
         return;
       }
-    
+
       try {
         await addDoc(collection(db, "reservations"), {
           labId,
@@ -550,15 +534,9 @@
         console.error("Error creando reserva:", err);
         alert("Error al crear la reserva: " + err.message);
       }
-    
+
       calendar.unselect();
     }
-
-
   </script>
 </body>
 </html>
-
-
-
-
