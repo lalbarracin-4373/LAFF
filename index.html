@@ -183,16 +183,23 @@
 
         <div class="toolbar">
           <div class="toolbar-item">
-            <label for="equipmentSelect">Equipamiento</label>
+            <label for="labSelect">Sala / LAB</label>
+            <select id="labSelect"></select>
+          </div>
+        
+          <div class="toolbar-item">
+            <label for="equipmentSelect">Equipo</label>
             <select id="equipmentSelect"></select>
           </div>
+        
           <div class="toolbar-item">
             <label>Instrucciones</label>
             <span class="small-text">
-              Inicia sesión, elige equipo y arrastra en el calendario para reservar en bloques de 15 minutos.
+              Inicia sesión, elige sala y equipo, y arrastra en el calendario para reservar en bloques de 15 minutos.
             </span>
           </div>
         </div>
+
 
         <div id="calendar"></div>
       </section>
@@ -233,14 +240,112 @@
     const app  = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db   = getFirestore(app);
-
-    // Equipos del laboratorio (puedes editar esta lista)
-    const EQUIPMENTS = [
-      { id: "microscopio1", name: "Microscopio 1" },
-      { id: "microscopio2", name: "Microscopio 2" },
-      { id: "cabina",       name: "Cabina de bioseguridad" },
-      { id: "centrifuga",   name: "Centrífuga" }
+    // Salas/Labs y equipos
+    const LABS = [
+      {
+        id: "lab403_cultivo",
+        name: "LAB403 – Cuarto de Cultivo",
+        equipments: [
+          { id: "lab403_cultivo_flujo_grande", name: "Flujo grande" },
+          { id: "lab403_cultivo_flujo_virus",  name: "Flujo Virus" }
+        ]
+      },
+      {
+        id: "lab403_bacteria",
+        name: "LAB403 – Cuarto de Bacteria",
+        equipments: [
+          { id: "lab403_bacteria_flujo_grande", name: "Flujo grande" },
+          { id: "lab403_bacteria_flujo_virus",  name: "Flujo Virus" }
+        ]
+      },
+      {
+        id: "lab403_qpcr",
+        name: "LAB403 – qPCR",
+        equipments: [
+          { id: "lab403_qpcr_roger",   name: "qPCR ROGER" },
+          { id: "lab403_qpcr_freddie", name: "qPCR FREDDIE" },
+          { id: "lab403_qpcr_john",    name: "qPCR JOHN" },
+          { id: "lab403_qpcr_brian",   name: "qPCR BRIAN" }
+        ]
+      },
+      {
+        id: "lab403_pcr",
+        name: "LAB403 – PCR",
+        equipments: [
+          { id: "lab403_pcr_lennon",    name: "PCR Lennon" },
+          { id: "lab403_pcr_mccartney", name: "PCR McCartney" },
+          { id: "lab403_pcr_harrison",  name: "PCR Harrison" },
+          { id: "lab403_pcr_starr",     name: "PCR Starr" }
+        ]
+      },
+      {
+        id: "lab403_general",
+        name: "LAB403 – General",
+        equipments: [
+          { id: "lab403_wb",           name: "Western Blot" },
+          { id: "lab403_mic_fluor",    name: "Microscopio FLUORESCENCIA" }
+        ]
+      },
+      {
+        id: "lab_a103",
+        name: "LAB A103",
+        equipments: [
+          { id: "lab_a103_flujo",      name: "Flujo" },
+          { id: "lab_a103_anaerobio",  name: "Cabina anaerobiosis" }
+        ]
+      }
     ];
+    
+    // Rellena los selects de lab y equipo
+    function populateLabsAndEquipments() {
+      labSelect.innerHTML = "";
+      equipmentSelect.innerHTML = "";
+    
+      LABS.forEach((lab, index) => {
+        const opt = document.createElement("option");
+        opt.value = lab.id;
+        opt.textContent = lab.name;
+        labSelect.appendChild(opt);
+      });
+    
+      // Seleccionamos el primer LAB por defecto
+      if (LABS.length > 0) {
+        populateEquipmentsForLab(LABS[0].id);
+      }
+    }
+    
+    function populateEquipmentsForLab(labId) {
+      equipmentSelect.innerHTML = "";
+      const lab = LABS.find(l => l.id === labId);
+      if (!lab) return;
+    
+      lab.equipments.forEach((eq, index) => {
+        const opt = document.createElement("option");
+        opt.value = eq.id;
+        opt.textContent = eq.name;
+        equipmentSelect.appendChild(opt);
+      });
+    }
+    
+    // Cuando cambia el LAB, actualizamos la lista de equipos y el calendario
+    labSelect.addEventListener("change", () => {
+      const labId = labSelect.value;
+      populateEquipmentsForLab(labId);
+    
+      if (equipmentSelect.value) {
+        subscribeToEquipmentReservations(equipmentSelect.value);
+      }
+    });
+    
+    // Cuando cambia el equipo, actualizamos sus reservas
+    equipmentSelect.addEventListener("change", () => {
+      if (equipmentSelect.value) {
+        subscribeToEquipmentReservations(equipmentSelect.value);
+      }
+    });
+    
+    // Inicializar selects al cargar el script
+    populateLabsAndEquipments();
 
     // Referencias al DOM
     const loginBtn        = document.getElementById("loginBtn");
@@ -252,15 +357,10 @@
     const logoutSection   = document.getElementById("logoutSection");
     const userEmailLabel  = document.getElementById("userEmailLabel");
     const loggedUserEmail = document.getElementById("loggedUserEmail");
+    const labSelect       = document.getElementById("labSelect");
     const equipmentSelect = document.getElementById("equipmentSelect");
 
-    // Llenar el select de equipamiento
-    EQUIPMENTS.forEach(eq => {
-      const opt = document.createElement("option");
-      opt.value = eq.id;
-      opt.textContent = eq.name;
-      equipmentSelect.appendChild(opt);
-    });
+
 
     // Variables para calendario y listener de Firestore
     let calendar = null;
@@ -364,16 +464,25 @@
         const events = [];
         snapshot.forEach(docSnap => {
           const data = docSnap.data();
-    
           const start = data.start instanceof Timestamp ? data.start.toDate() : data.start;
           const end   = data.end   instanceof Timestamp ? data.end.toDate()   : data.end;
     
+          const labLabel  = data.labName || data.labId || "";
+          const eqLabel   = data.equipmentName || data.equipmentId || "Equipo";
+          const userLabel = data.userEmail || "Reserva";
+          
+          let title = `${eqLabel} (${userLabel})`;
+          if (labLabel) {
+            title = `${labLabel} – ${eqLabel} (${userLabel})`;
+          }
+          
           events.push({
             id: docSnap.id,
-            title: data.userEmail || "Reserva",
+            title,
             start,
             end
           });
+
         });
     
         // Sort on the client by start time
@@ -386,32 +495,30 @@
       });
 }
 
-    equipmentSelect.addEventListener("change", () => {
-      const equipmentId = equipmentSelect.value;
-      subscribeToEquipmentReservations(equipmentId);
-    });
-
     // CREAR RESERVA AL SELECCIONAR SLOT
-    async function handleDateSelect(selectionInfo) {
+   async function handleDateSelect(selectionInfo) {
       if (!currentUser) {
         alert("Debes iniciar sesión para reservar.");
         calendar.unselect();
         return;
       }
     
+      const labId = labSelect.value;
       const equipmentId = equipmentSelect.value;
     
-      // Usamos exactamente lo que el usuario arrastró
+      const lab = LABS.find(l => l.id === labId);
+      const eq  = lab?.equipments.find(e => e.id === equipmentId);
+    
       const start = selectionInfo.start;
       const end   = selectionInfo.end;
-    
-      // Calculamos la duración en minutos
       const durationMin = Math.round((end.getTime() - start.getTime()) / 60000);
     
-      const eqName = (EQUIPMENTS.find(e => e.id === equipmentId) || {}).name || equipmentId;
+      const eqLabel  = eq ? eq.name : equipmentId;
+      const labLabel = lab ? lab.name : labId;
     
       const confirmText = `
-    Equipo: ${eqName}
+    Sala/LAB: ${labLabel}
+    Equipo: ${eqLabel}
     Usuario: ${currentUser.email}
     Inicio: ${start.toLocaleString()}
     Fin: ${end.toLocaleString()}
@@ -427,7 +534,10 @@
     
       try {
         await addDoc(collection(db, "reservations"), {
+          labId,
+          labName: labLabel,
           equipmentId,
+          equipmentName: eqLabel,
           start: Timestamp.fromDate(start),
           end:   Timestamp.fromDate(end),
           userId: currentUser.uid,
@@ -440,10 +550,12 @@
       }
     
       calendar.unselect();
-}
+    }
+
 
   </script>
 </body>
 </html>
+
 
 
