@@ -5,872 +5,260 @@
   <title>Reservas de Equipamiento</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- FullCalendar (CSS + JS) -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/6.1.19/index.global.min.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/6.1.19/index.global.min.js"></script>
 
   <style>
-    :root {
-      --primary: #0f5175;
-      --primary-light: #72d0db;
-      --bg: #f5f5f5;
-      --card-bg: #ffffff;
-      --border: #dddddd;
-      --danger: #c0392b;
-    }
-    * {
-      box-sizing: border-box;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    }
-    body {
-      margin: 0;
-      padding: 0;
-      background: var(--bg);
-      color: #333;
-    }
-    header {
-      background: var(--primary);
-      color: #fff;
-      padding: 0.8rem 1.5rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-    }
-    header h1 {
-      margin: 0;
-      font-size: 1.2rem;
-    }
-    .user-info {
-      font-size: 0.9rem;
-    }
-    main {
-      padding: 1rem;
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-    .layout {
-      display: grid;
-      grid-template-columns: minmax(260px, 320px) 1fr;
-      gap: 1rem;
-    }
-    @media (max-width: 800px) {
-      .layout {
-        grid-template-columns: 1fr;
+    :root { --primary:#0f5175; --primary-light:#72d0db; --bg:#f5f5f5; --card-bg:#fff; --border:#ddd; --danger:#c0392b; }
+    * { box-sizing:border-box; font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    body { margin:0; background:var(--bg); }
+    header { background:var(--primary); color:#fff; padding:.8rem 1.5rem; display:flex; justify-content:space-between; }
+    main { padding:1rem; max-width:1200px; margin:auto; }
+    .layout { display:grid; grid-template-columns:300px 1fr; gap:1rem; }
+    @media(max-width:800px){ .layout{ grid-template-columns:1fr; } }
+    .card { background:#fff; border:1px solid var(--border); border-radius:8px; padding:1rem; }
+    .toolbar { display:flex; gap:1rem; flex-wrap:wrap; }
+    select,input,button { padding:.45rem; border:1px solid var(--border); border-radius:4px; }
+    button.btn-primary { background:var(--primary); color:#fff; }
+    button.btn-danger { background:var(--danger); color:#fff; }
+  
+    @media (max-width: 600px) {
+      .fc .fc-toolbar-title {
+        font-size: 1rem;
+      }
+      .fc .fc-col-header-cell-cushion,
+      .fc .fc-timegrid-slot-label {
+        font-size: 0.75rem;
       }
     }
-    .card {
-      background: var(--card-bg);
-      border-radius: 8px;
-      border: 1px solid var(--border);
-      padding: 1rem;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
-    }
-    .card h2 {
-      margin-top: 0;
-      font-size: 1.1rem;
-      margin-bottom: 0.75rem;
-    }
-    label {
-      display: block;
-      font-size: 0.85rem;
-      margin-bottom: 0.2rem;
-    }
-    input[type="email"],
-    input[type="password"],
-    select {
-      width: 100%;
-      padding: 0.45rem 0.55rem;
-      border-radius: 4px;
-      border: 1px solid var(--border);
-      margin-bottom: 0.6rem;
-      font-size: 0.9rem;
-    }
-    button {
-      border: none;
-      border-radius: 4px;
-      padding: 0.5rem 0.75rem;
-      font-size: 0.9rem;
-      cursor: pointer;
-    }
-    .btn-primary {
-      background: var(--primary);
-      color: #fff;
-    }
-    .btn-danger {
-      background: var(--danger);
-      color: #fff;
-    }
-    .btn-secondary {
-      background: var(--primary-light);
-      color: #003142;
-    }
-    .btn-group {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      margin-top: 0.4rem;
-    }
-    .small-text {
-      font-size: 0.8rem;
-      color: #555;
-    }
-    .status {
-      margin-top: 0.5rem;
-      font-size: 0.8rem;
-      min-height: 1.1em;
-    }
-    .status.error {
-      color: var(--danger);
-    }
-    .toolbar {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.6rem;
-      align-items: center;
-      margin-bottom: 0.7rem;
-    }
-    .toolbar-item {
-      display: flex;
-      flex-direction: column;
-      font-size: 0.8rem;
-    }
-    #calendar {
-      background: #fff;
-      border-radius: 8px;
-      padding: 0.5rem;
-      border: 1px solid var(--border);
-    }
-    ul.reservation-list {
-      list-style: none;
-      padding-left: 0;
-      margin: 0.4rem 0 0;
-    }
-    ul.reservation-list li {
-      margin-bottom: 0.4rem;
-      border-bottom: 1px dashed #ddd;
-      padding-bottom: 0.3rem;
-      display: flex;
-      justify-content: space-between;
-      gap: 0.5rem;
-      align-items: flex-start;
-    }
-    ul.reservation-list li span {
-      display: block;
-    }
-    .reservation-text {
-      flex: 1;
-    }
-    .reservation-actions button {
-      font-size: 0.75rem;
-      padding: 0.25rem 0.4rem;
-    }
+
   </style>
 </head>
 <body>
-  <header>
-    <h1>Sistema de Reservas de Equipamiento</h1>
-    <div class="user-info">
-      <span id="userEmailLabel">No has iniciado sesión</span>
+<header>
+  <h1>Sistema de Reservas</h1>
+  <span id="userEmailLabel">No has iniciado sesión</span>
+</header>
+
+<main>
+<div class="layout">
+
+<section class="card">
+  <h2>Acceso</h2>
+  <div id="authSection">
+    <label>Email</label>
+    <input id="email" type="email" />
+    <label>Contraseña</label>
+    <input id="password" type="password" />
+    <button id="loginBtn" class="btn-primary">Iniciar sesión</button>
+    <button id="forgotPasswordBtn">Olvidé mi contraseña</button>
+    <div id="authStatus"></div>
+  </div>
+
+  <div id="logoutSection" style="display:none;">
+    <p>Sesión iniciada como: <span id="loggedUserEmail"></span></p>
+    <button id="changePasswordBtn">Cambiar contraseña</button>
+    <button id="logoutBtn" class="btn-danger">Cerrar sesión</button>
+    <div id="passwordStatus"></div>
+  </div>
+</section>
+
+<section class="card">
+  <h2>Calendario</h2>
+  <div class="toolbar">
+    <div>
+      <label>Sala</label>
+      <select id="labSelect"></select>
     </div>
-  </header>
-
-  <main>
-    <div class="layout">
-      <!-- Panel de login -->
-      <section class="card">
-        <h2>Acceso de usuarios</h2>
-        <div id="authSection">
-          <label for="email">Email</label>
-          <input type="email" id="email" placeholder="usuario@ejemplo.com" />
-
-          <label for="password">Contraseña</label>
-          <input type="password" id="password" placeholder="********" />
-
-          <div class="btn-group">
-            <button id="loginBtn" class="btn-primary">Iniciar sesión</button>
-            <button id="forgotPasswordBtn" class="btn-secondary">Olvidé mi contraseña</button>
-          </div>
-
-          <div class="status" id="authStatus"></div>
-
-          <p class="small-text">
-            Si no tienes usuario, solicita uno al administrador.
-          </p>
-        </div>
-
-        <div id="logoutSection" style="display:none;">
-          <p>Sesión iniciada como:</p>
-          <p class="small-text" id="loggedUserEmail"></p>
-          <div class="btn-group">
-            <button id="changePasswordBtn" class="btn-secondary">Cambiar contraseña</button>
-            <button id="logoutBtn" class="btn-danger">Cerrar sesión</button>
-          </div>
-          <div class="status small-text" id="passwordStatus"></div>
-        </div>
-      </section>
-
-      <!-- Columna derecha: calendario -->
-      <section class="card">
-        <h2>Calendario de reservas</h2>
-
-        <div class="toolbar">
-          <div class="toolbar-item">
-            <label for="labSelect">Sala / LAB</label>
-            <select id="labSelect"></select>
-          </div>
-        
-          <div class="toolbar-item">
-            <label for="equipmentSelect">Equipo</label>
-            <select id="equipmentSelect"></select>
-          </div>
-        
-          <div class="toolbar-item">
-            <label>Instrucciones</label>
-            <span class="small-text">
-              Inicia sesión, elige sala y equipo, y arrastra en el calendario para reservar en bloques de 15 minutos. No se permiten reservas en el pasado ni superpuestas.
-            </span>
-          </div>
-        </div>
-
-        <div id="calendar"></div>
-      </section>
-
-      <!-- Mis reservas -->
-      <section class="card" id="myReservationsSection" style="display:none;">
-        <h2>Mis reservas</h2>
-        <p class="small-text" id="myReservationsInfo">No tienes reservas.</p>
-        <ul id="myReservationsList" class="reservation-list"></ul>
-      </section>
-
-      <!-- Vista administrador -->
-      <section class="card" id="adminSection" style="display:none;">
-        <h2>Vista administrador</h2>
-        <p class="small-text">
-          Lista de todas las reservas (solo lectura). Configura los correos de administradores en el código.
-        </p>
-        <ul id="adminReservationsList" class="reservation-list"></ul>
-      </section>
-
+    <div>
+      <label>Equipo</label>
+      <select id="equipmentSelect"></select>
     </div>
-  </main>
+  </div>
+  <div id="calendar"></div>
+</section>
 
-  <!-- Firebase + lógica (SDK modular) -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
-    import {
-      getAuth,
-      signInWithEmailAndPassword,
-      onAuthStateChanged,
-      signOut,
-      sendPasswordResetEmail,
-      updatePassword
-    } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
-    import {
-      getFirestore,
-      collection,
-      addDoc,
-      query,
-      where,
-      onSnapshot,
-      Timestamp,
-      serverTimestamp,
-      doc,
-      deleteDoc
-    } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+<section class="card" id="myReservationsSection" style="display:none;">
+  <h2>Mis reservas</h2>
+  <ul id="myReservationsList"></ul>
+</section>
 
-    // Configuración Firebase
-    const firebaseConfig = {
-      apiKey: "AIzaSyA98AI1BeF-f6WWiQHe_bKoBe0KlaFwfcE",
-      authDomain: "laboratory-schedules.firebaseapp.com",
-      projectId: "laboratory-schedules"
-    };
+<section class="card" id="adminSection" style="display:none;">
+  <h2>Administrador</h2>
+  <ul id="adminReservationsList"></ul>
+</section>
 
-    const app  = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db   = getFirestore(app);
+</div>
+</main>
 
-    // Admins por email (EDITA ESTA LISTA con tus correos)
-    const ADMIN_EMAILS = [
-      "leo@example.com",      // cámbialo por tu correo real
-      "admin@laboratorio.com" // puedes borrar/editar los que no uses
-    ];
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+import {
+  getAuth, signInWithEmailAndPassword, onAuthStateChanged,
+  signOut, sendPasswordResetEmail, updatePassword
+} from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
 
-    function isAdminEmail(email) {
-      if (!email) return false;
-      return ADMIN_EMAILS.includes(email.toLowerCase());
+import {
+  getFirestore, collection, addDoc, query, where, onSnapshot,
+  Timestamp, serverTimestamp, doc, deleteDoc
+} from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey:"AIzaSyA98AI1BeF-f6WWiQHe_bKoBe0KlaFwfcE",
+  authDomain:"laboratory-schedules.firebaseapp.com",
+  projectId:"laboratory-schedules"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+const ADMIN_EMAILS = ["leo@example.com"];
+
+const LABS = [
+  { id:"lab403_cultivo", name:"LAB403 – Cultivo", equipments:[
+    {id:"c1",name:"Flujo grande"},{id:"c2",name:"Flujo virus"} ]},
+  { id:"lab403_bacteria", name:"LAB403 – Bacteria", equipments:[
+    {id:"b1",name:"Flujo grande"},{id:"b2",name:"Flujo virus"} ]},
+  { id:"lab403_qpcr", name:"LAB403 – qPCR", equipments:[
+    {id:"q1",name:"qPCR ROGER"},{id:"q2",name:"qPCR FREDDIE"},
+    {id:"q3",name:"qPCR JOHN"},{id:"q4",name:"qPCR BRIAN"} ]},
+  { id:"lab403_pcr", name:"LAB403 – PCR", equipments:[
+    {id:"p1",name:"PCR Lennon"},{id:"p2",name:"PCR McCartney"},
+    {id:"p3",name:"PCR Harrison"},{id:"p4",name:"PCR Starr"} ]},
+  { id:"lab403_general", name:"LAB403 – General", equipments:[
+    {id:"g1",name:"Western Blot"},{id:"g2",name:"Microscopio Fluorescencia"} ]},
+  { id:"lab_a103", name:"LAB A103", equipments:[
+    {id:"a1",name:"Flujo"},{id:"a2",name:"Cabina anaerobiosis"} ]}
+];
+
+const loginBtn=document.getElementById("loginBtn");
+const logoutBtn=document.getElementById("logoutBtn");
+const changePasswordBtn=document.getElementById("changePasswordBtn");
+const forgotPasswordBtn=document.getElementById("forgotPasswordBtn");
+const emailInput=document.getElementById("email");
+const passwordInput=document.getElementById("password");
+const authStatus=document.getElementById("authStatus");
+const authSection=document.getElementById("authSection");
+const logoutSection=document.getElementById("logoutSection");
+const userEmailLabel=document.getElementById("userEmailLabel");
+const loggedUserEmail=document.getElementById("loggedUserEmail");
+const passwordStatus=document.getElementById("passwordStatus");
+
+const labSelect=document.getElementById("labSelect");
+const equipmentSelect=document.getElementById("equipmentSelect");
+
+const myReservationsSection=document.getElementById("myReservationsSection");
+const myReservationsList=document.getElementById("myReservationsList");
+
+const adminSection=document.getElementById("adminSection");
+const adminReservationsList=document.getElementById("adminReservationsList");
+
+LABS.forEach(l=>{
+  const opt=document.createElement("option");
+  opt.value=l.id; opt.textContent=l.name;
+  labSelect.appendChild(opt);
+});
+
+function loadEquip(labId){
+  equipmentSelect.innerHTML="";
+  const lab=LABS.find(x=>x.id===labId);
+  lab.equipments.forEach(eq=>{
+    const opt=document.createElement("option");
+    opt.value=eq.id; opt.textContent=eq.name;
+    equipmentSelect.appendChild(opt);
+  });
+}
+loadEquip(LABS[0].id);
+
+labSelect.onchange=()=>loadEquip(labSelect.value);
+
+let currentUser=null;
+
+onAuthStateChanged(auth,user=>{
+  currentUser=user;
+  if(user){
+    authSection.style.display="none";
+    logoutSection.style.display="block";
+    userEmailLabel.textContent=user.email;
+    loggedUserEmail.textContent=user.email;
+  } else {
+    authSection.style.display="block";
+    logoutSection.style.display="none";
+  }
+});
+
+loginBtn.onclick=async()=>{
+  try{
+    await signInWithEmailAndPassword(auth,emailInput.value,passwordInput.value);
+  }catch(e){ authStatus.textContent=e.message; }
+};
+
+logoutBtn.onclick=()=>signOut(auth);
+
+forgotPasswordBtn.onclick=async()=>{
+  await sendPasswordResetEmail(auth,emailInput.value);
+  authStatus.textContent="Email enviado (si existe)";
+};
+
+changePasswordBtn.onclick=async()=>{
+  const np=prompt("Nueva contraseña:");
+  if(!np) return;
+  await updatePassword(currentUser,np);
+  passwordStatus.textContent="Contraseña actualizada";
+};
+
+function isPast(date){ return date < new Date(); }
+
+function overlaps(start,end,events){
+  return events.some(ev=> start < ev.end && end > ev.start );
+}
+
+const calendar=new FullCalendar.Calendar(document.getElementById("calendar"),{
+  initialView:"timeGridWeek",
+  locale:"es",
+  slotDuration:"00:15:00",
+  snapDuration:"00:15:00",
+  slotLabelFormat:{ hour:"2-digit", minute:"2-digit", hour12:false },
+  eventTimeFormat:{ hour:"2-digit", minute:"2-digit", hour12:false },
+  selectable:true,
+  selectAllow:()=>!!currentUser,
+  select:async(info)=>{
+    if(isPast(info.start)){ alert("No se puede reservar en el pasado"); return;}
+    if(overlaps(info.start,info.end,calendar.getEvents())){
+      alert("Reserva superpuesta"); return;
     }
-
-    // --- LABS y equipos ---
-    const LABS = [
-      {
-        id: "lab403_cultivo",
-        name: "LAB403 – Cuarto de Cultivo",
-        equipments: [
-          { id: "lab403_cultivo_flujo_grande", name: "Flujo grande" },
-          { id: "lab403_cultivo_flujo_virus",  name: "Flujo Virus" }
-        ]
-      },
-      {
-        id: "lab403_bacteria",
-        name: "LAB403 – Cuarto de Bacteria",
-        equipments: [
-          { id: "lab403_bacteria_flujo_grande", name: "Flujo grande" },
-          { id: "lab403_bacteria_flujo_virus",  name: "Flujo Virus" }
-        ]
-      },
-      {
-        id: "lab403_qpcr",
-        name: "LAB403 – qPCR",
-        equipments: [
-          { id: "lab403_qpcr_roger",   name: "qPCR ROGER" },
-          { id: "lab403_qpcr_freddie", name: "qPCR FREDDIE" },
-          { id: "lab403_qpcr_john",    name: "qPCR JOHN" },
-          { id: "lab403_qpcr_brian",   name: "qPCR BRIAN" }
-        ]
-      },
-      {
-        id: "lab403_pcr",
-        name: "LAB403 – PCR",
-        equipments: [
-          { id: "lab403_pcr_lennon",    name: "PCR Lennon" },
-          { id: "lab403_pcr_mccartney", name: "PCR McCartney" },
-          { id: "lab403_pcr_harrison",  name: "PCR Harrison" },
-          { id: "lab403_pcr_starr",     name: "PCR Starr" }
-        ]
-      },
-      {
-        id: "lab403_general",
-        name: "LAB403 – General",
-        equipments: [
-          { id: "lab403_wb",        name: "Western Blot" },
-          { id: "lab403_mic_fluor", name: "Microscopio FLUORESCENCIA" }
-        ]
-      },
-      {
-        id: "lab_a103",
-        name: "LAB A103",
-        equipments: [
-          { id: "lab_a103_flujo",     name: "Flujo" },
-          { id: "lab_a103_anaerobio", name: "Cabina anaerobiosis" }
-        ]
-      }
-    ];
-
-    // --- Referencias DOM ---
-    const loginBtn        = document.getElementById("loginBtn");
-    const logoutBtn       = document.getElementById("logoutBtn");
-    const changePasswordBtn = document.getElementById("changePasswordBtn");
-    const forgotPasswordBtn = document.getElementById("forgotPasswordBtn");
-    const emailInput      = document.getElementById("email");
-    const passwordInput   = document.getElementById("password");
-    const authStatus      = document.getElementById("authStatus");
-    const authSection     = document.getElementById("authSection");
-    const logoutSection   = document.getElementById("logoutSection");
-    const userEmailLabel  = document.getElementById("userEmailLabel");
-    const loggedUserEmail = document.getElementById("loggedUserEmail");
-    const passwordStatus  = document.getElementById("passwordStatus");
-
-    const labSelect       = document.getElementById("labSelect");
-    const equipmentSelect = document.getElementById("equipmentSelect");
-
-    const myReservationsSection = document.getElementById("myReservationsSection");
-    const myReservationsInfo    = document.getElementById("myReservationsInfo");
-    const myReservationsList    = document.getElementById("myReservationsList");
-
-    const adminSection          = document.getElementById("adminSection");
-    const adminReservationsList = document.getElementById("adminReservationsList");
-
-    // --- Poblar selects Lab / Equipo ---
-    function populateEquipmentsForLab(labId) {
-      equipmentSelect.innerHTML = "";
-      const lab = LABS.find(l => l.id === labId);
-      if (!lab) return;
-
-      lab.equipments.forEach(eq => {
-        const opt = document.createElement("option");
-        opt.value = eq.id;
-        opt.textContent = eq.name;
-        equipmentSelect.appendChild(opt);
-      });
-    }
-
-    function populateLabsAndEquipments() {
-      labSelect.innerHTML = "";
-      equipmentSelect.innerHTML = "";
-
-      LABS.forEach(lab => {
-        const opt = document.createElement("option");
-        opt.value = lab.id;
-        opt.textContent = lab.name;
-        labSelect.appendChild(opt);
-      });
-
-      if (LABS.length > 0) {
-        populateEquipmentsForLab(LABS[0].id);
-      }
-    }
-
-    labSelect.addEventListener("change", () => {
-      const labId = labSelect.value;
-      populateEquipmentsForLab(labId);
-
-      if (equipmentSelect.value) {
-        subscribeToEquipmentReservations(equipmentSelect.value);
-      }
+    const lab=LABS.find(l=>l.id===labSelect.value);
+    const eq=lab.equipments.find(e=>e.id===equipmentSelect.value);
+    if(!confirm(`Confirmar reserva en ${lab.name} – ${eq.name}?`)) return;
+    await addDoc(collection(db,"reservations"),{
+      labId:lab.id, labName:lab.name,
+      equipmentId:eq.id, equipmentName:eq.name,
+      start:Timestamp.fromDate(info.start),
+      end:Timestamp.fromDate(info.end),
+      userId:currentUser.uid, userEmail:currentUser.email,
+      createdAt:serverTimestamp()
     });
+  }
+});
+calendar.render();
 
-    equipmentSelect.addEventListener("change", () => {
-      if (equipmentSelect.value) {
-        subscribeToEquipmentReservations(equipmentSelect.value);
-      }
-    });
-
-    // Inicializar selects
-    populateLabsAndEquipments();
-
-    // --- Calendario & estado global ---
-    let calendar = null;
-    let unsubscribeReservations = null;
-    let currentUser = null;
-
-    let myReservationsUnsub = null;
-    let adminReservationsUnsub = null;
-
-    // Inicializar FullCalendar
-    const calendarEl = document.getElementById("calendar");
-    calendar = new FullCalendar.Calendar(calendarEl, {
-      initialView: "timeGridWeek",
-      locale: "es",
-      slotDuration: "00:15:00",
-      snapDuration: "00:15:00",
-      slotMinTime: "07:00:00",
-      slotMaxTime: "22:00:00",
-      allDaySlot: false,
-      selectable: true,
-      selectMirror: true,
-      nowIndicator: true,
-      headerToolbar: {
-        left: "prev,next today",
-        center: "title",
-        right: "timeGridDay,timeGridWeek,dayGridMonth"
-      },
-      selectAllow: () => !!currentUser,
-      select: handleDateSelect
-    });
-
-    calendar.render();
-
-    if (equipmentSelect.value) {
-      subscribeToEquipmentReservations(equipmentSelect.value);
-    }
-
-    // --- LOGIN ---
-    loginBtn.addEventListener("click", async () => {
-      authStatus.textContent = "";
-      authStatus.classList.remove("error");
-      passwordStatus.textContent = "";
-
-      try {
-        const email = emailInput.value.trim();
-        const pass  = passwordInput.value;
-
-        if (!email || !pass) {
-          authStatus.textContent = "Completa email y contraseña.";
-          authStatus.classList.add("error");
-          return;
-        }
-
-        await signInWithEmailAndPassword(auth, email, pass);
-        authStatus.textContent = "Inicio de sesión correcto.";
-      } catch (err) {
-        authStatus.textContent = "Error al iniciar sesión: " + err.message;
-        authStatus.classList.add("error");
-        console.error(err);
-      }
-    });
-
-    // --- Olvidé mi contraseña ---
-    forgotPasswordBtn.addEventListener("click", async () => {
-      authStatus.textContent = "";
-      authStatus.classList.remove("error");
-      const email = emailInput.value.trim();
-
-      if (!email) {
-        authStatus.textContent = "Ingresa tu email para enviar el enlace de recuperación.";
-        authStatus.classList.add("error");
-        return;
-      }
-
-      try {
-        await sendPasswordResetEmail(auth, email);
-        authStatus.textContent = "Se ha enviado un correo para restablecer la contraseña (si el email está registrado).";
-      } catch (err) {
-        authStatus.textContent = "Error al enviar el correo de recuperación: " + err.message;
-        authStatus.classList.add("error");
-        console.error(err);
-      }
-    });
-
-    // --- Cambio de contraseña ---
-    changePasswordBtn.addEventListener("click", async () => {
-      passwordStatus.textContent = "";
-      passwordStatus.classList.remove("error");
-
-      if (!currentUser) {
-        passwordStatus.textContent = "Debes iniciar sesión para cambiar tu contraseña.";
-        passwordStatus.classList.add("error");
-        return;
-      }
-
-      const newPass = prompt("Ingresa la nueva contraseña:");
-      if (!newPass) {
-        return;
-      }
-
-      try {
-        await updatePassword(currentUser, newPass);
-        passwordStatus.textContent = "Contraseña actualizada correctamente.";
-      } catch (err) {
-        passwordStatus.textContent = "No se pudo cambiar la contraseña: " + err.message;
-        passwordStatus.classList.add("error");
-        console.error(err);
-      }
-    });
-
-    // --- LOGOUT ---
-    logoutBtn.addEventListener("click", async () => {
-      await signOut(auth);
-    });
-
-    // --- CAMBIO DE ESTADO DE AUTH ---
-    onAuthStateChanged(auth, (user) => {
-      currentUser = user;
-      authStatus.textContent = "";
-      passwordStatus.textContent = "";
-
-      if (user) {
-        authSection.style.display   = "none";
-        logoutSection.style.display = "block";
-        userEmailLabel.textContent  = user.email;
-        loggedUserEmail.textContent = user.email;
-
-        // Mis reservas
-        startMyReservationsListener(user.uid);
-
-        // Admin
-        if (isAdminEmail(user.email)) {
-          startAdminReservationsListener();
-        } else {
-          stopAdminReservationsListener();
-        }
-      } else {
-        authSection.style.display   = "block";
-        logoutSection.style.display = "none";
-        userEmailLabel.textContent  = "No has iniciado sesión";
-        loggedUserEmail.textContent = "";
-
-        stopMyReservationsListener();
-        stopAdminReservationsListener();
-      }
-    });
-
-    // --- SUSCRIPCIÓN A RESERVAS (por equipo) ---
-    function subscribeToEquipmentReservations(equipmentId) {
-      if (unsubscribeReservations) {
-        unsubscribeReservations();
-        unsubscribeReservations = null;
-      }
-
-      const q = query(
-        collection(db, "reservations"),
-        where("equipmentId", "==", equipmentId)
-      );
-
-      unsubscribeReservations = onSnapshot(q, (snapshot) => {
-        if (!calendar) return;
-
-        calendar.removeAllEvents();
-
-        const events = [];
-        snapshot.forEach(docSnap => {
-          const data = docSnap.data();
-          const start = data.start instanceof Timestamp ? data.start.toDate() : data.start;
-          const end   = data.end   instanceof Timestamp ? data.end.toDate()   : data.end;
-
-          const labLabel  = data.labName || data.labId || "";
-          const eqLabel   = data.equipmentName || data.equipmentId || "Equipo";
-          const userLabel = data.userEmail || "Reserva";
-
-          let title = `${eqLabel} (${userLabel})`;
-          if (labLabel) {
-            title = `${labLabel} – ${eqLabel} (${userLabel})`;
-          }
-
-          events.push({
-            id: docSnap.id,
-            title,
-            start,
-            end,
-            extendedProps: {
-              labId: data.labId,
-              labName: data.labName,
-              equipmentId: data.equipmentId,
-              equipmentName: data.equipmentName,
-              userId: data.userId,
-              userEmail: data.userEmail
-            }
-          });
-        });
-
-        events.sort((a, b) => a.start - b.start);
-        events.forEach(ev => calendar.addEvent(ev));
-      }, (error) => {
-        console.error("Error escuchando reservas:", error);
+queryReservations();
+function queryReservations(){
+  onSnapshot(collection(db,"reservations"),snap=>{
+    calendar.removeAllEvents();
+    const items=[];
+    snap.forEach(d=>{
+      const x=d.data();
+      const s=x.start.toDate(), e=x.end.toDate();
+      calendar.addEvent({
+        title:`${x.labName} – ${x.equipmentName} (${x.userEmail})`,
+        start:s, end:e
       });
-    }
+    });
+  });
+}
+</script>
 
-    // --- LISTENER: Mis reservas ---
-    function startMyReservationsListener(userId) {
-      stopMyReservationsListener();
-
-      const q = query(
-        collection(db, "reservations"),
-        where("userId", "==", userId)
-      );
-
-      myReservationsUnsub = onSnapshot(q, (snapshot) => {
-        const items = [];
-        snapshot.forEach(docSnap => {
-          const data = docSnap.data();
-          const start = data.start instanceof Timestamp ? data.start.toDate() : data.start;
-          const end   = data.end   instanceof Timestamp ? data.end.toDate()   : data.end;
-
-          items.push({
-            id: docSnap.id,
-            start,
-            end,
-            labName: data.labName || data.labId || "",
-            equipmentName: data.equipmentName || data.equipmentId || "",
-          });
-        });
-
-        items.sort((a, b) => a.start - b.start);
-        renderMyReservations(items);
-      });
-
-      myReservationsSection.style.display = "block";
-    }
-
-    function stopMyReservationsListener() {
-      if (myReservationsUnsub) {
-        myReservationsUnsub();
-        myReservationsUnsub = null;
-      }
-      myReservationsSection.style.display = "none";
-      myReservationsList.innerHTML = "";
-      myReservationsInfo.textContent = "No tienes reservas.";
-    }
-
-    function renderMyReservations(items) {
-      if (!items.length) {
-        myReservationsInfo.textContent = "No tienes reservas.";
-        myReservationsList.innerHTML = "";
-        return;
-      }
-
-      myReservationsInfo.textContent = "";
-      myReservationsList.innerHTML = "";
-
-      items.forEach(item => {
-        const li = document.createElement("li");
-
-        const textDiv = document.createElement("div");
-        textDiv.className = "reservation-text";
-        const dateStr = item.start.toLocaleDateString();
-        const timeStr = item.start.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) +
-                        " - " +
-                        item.end.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-
-        textDiv.innerHTML = `
-          <span><strong>${item.labName}</strong> – ${item.equipmentName}</span>
-          <span>${dateStr} ${timeStr}</span>
-        `;
-
-        const actionsDiv = document.createElement("div");
-        actionsDiv.className = "reservation-actions";
-        const cancelBtn = document.createElement("button");
-        cancelBtn.className = "btn-danger";
-        cancelBtn.textContent = "Cancelar";
-        cancelBtn.addEventListener("click", async () => {
-          if (!confirm("¿Cancelar esta reserva?")) return;
-          try {
-            await deleteDoc(doc(db, "reservations", item.id));
-          } catch (err) {
-            alert("No se pudo cancelar la reserva: " + err.message);
-            console.error(err);
-          }
-        });
-        actionsDiv.appendChild(cancelBtn);
-
-        li.appendChild(textDiv);
-        li.appendChild(actionsDiv);
-        myReservationsList.appendChild(li);
-      });
-    }
-
-    // --- LISTENER: Vista administrador (solo lectura) ---
-    function startAdminReservationsListener() {
-      stopAdminReservationsListener();
-
-      adminReservationsUnsub = onSnapshot(collection(db, "reservations"), (snapshot) => {
-        const items = [];
-        snapshot.forEach(docSnap => {
-          const data = docSnap.data();
-          const start = data.start instanceof Timestamp ? data.start.toDate() : data.start;
-          const end   = data.end   instanceof Timestamp ? data.end.toDate()   : data.end;
-
-          items.push({
-            id: docSnap.id,
-            start,
-            end,
-            labName: data.labName || data.labId || "",
-            equipmentName: data.equipmentName || data.equipmentId || "",
-            userEmail: data.userEmail || ""
-          });
-        });
-
-        items.sort((a, b) => a.start - b.start);
-        renderAdminReservations(items);
-      });
-
-      adminSection.style.display = "block";
-    }
-
-    function stopAdminReservationsListener() {
-      if (adminReservationsUnsub) {
-        adminReservationsUnsub();
-        adminReservationsUnsub = null;
-      }
-      adminSection.style.display = "none";
-      adminReservationsList.innerHTML = "";
-    }
-
-    function renderAdminReservations(items) {
-      adminReservationsList.innerHTML = "";
-
-      if (!items.length) {
-        const li = document.createElement("li");
-        li.textContent = "No hay reservas registradas.";
-        adminReservationsList.appendChild(li);
-        return;
-      }
-
-      items.forEach(item => {
-        const li = document.createElement("li");
-
-        const textDiv = document.createElement("div");
-        textDiv.className = "reservation-text";
-
-        const dateStr = item.start.toLocaleDateString();
-        const timeStr = item.start.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) +
-                        " - " +
-                        item.end.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-
-        textDiv.innerHTML = `
-          <span><strong>${item.labName}</strong> – ${item.equipmentName}</span>
-          <span>${dateStr} ${timeStr}</span>
-          <span class="small-text">${item.userEmail}</span>
-        `;
-
-        li.appendChild(textDiv);
-        adminReservationsList.appendChild(li);
-      });
-    }
-
-    // --- CREAR RESERVA ---
-    async function handleDateSelect(selectionInfo) {
-      if (!currentUser) {
-        alert("Debes iniciar sesión para reservar.");
-        calendar.unselect();
-        return;
-      }
-
-      const labId       = labSelect.value;
-      const equipmentId = equipmentSelect.value;
-
-      const lab = LABS.find(l => l.id === labId);
-      const eq  = lab?.equipments.find(e => e.id === equipmentId);
-
-      const start = selectionInfo.start;
-      const end   = selectionInfo.end;
-
-      // No permitir reservas en el pasado (según horario de inicio)
-      const now = new Date();
-      if (start < now) {
-        alert("No se pueden hacer reservas en el pasado.");
-        calendar.unselect();
-        return;
-      }
-
-      // Evitar superposición con reservas existentes del mismo equipo
-      const existingEvents = calendar.getEvents();
-      const overlaps = existingEvents.some(ev => {
-        const evStart = ev.start;
-        const evEnd   = ev.end;
-        if (!evStart || !evEnd) return false;
-
-        // chequeo simple de solapamiento: [start, end) vs [evStart, evEnd)
-        const overlap = start < evEnd && end > evStart;
-        return overlap;
-      });
-
-      if (overlaps) {
-        alert("Ya existe una reserva superpuesta para este equipo en ese horario.");
-        calendar.unselect();
-        return;
-      }
-
-      const durationMin = Math.round((end.getTime() - start.getTime()) / 60000);
-
-      const eqLabel  = eq ? eq.name : equipmentId;
-      const labLabel = lab ? lab.name : labId;
-
-      const confirmText = `
-Sala/LAB: ${labLabel}
-Equipo: ${eqLabel}
-Usuario: ${currentUser.email}
-Inicio: ${start.toLocaleString()}
-Fin: ${end.toLocaleString()}
-Duración: ${durationMin} minutos
-
-¿Confirmar reserva?`;
-
-      const ok = confirm(confirmText);
-      if (!ok) {
-        calendar.unselect();
-        return;
-      }
-
-      try {
-        await addDoc(collection(db, "reservations"), {
-          labId,
-          labName: labLabel,
-          equipmentId,
-          equipmentName: eqLabel,
-          start: Timestamp.fromDate(start),
-          end:   Timestamp.fromDate(end),
-          userId: currentUser.uid,
-          userEmail: currentUser.email,
-          createdAt: serverTimestamp()
-        });
-      } catch (err) {
-        console.error("Error creando reserva:", err);
-        alert("Error al crear la reserva: " + err.message);
-      }
-
-      calendar.unselect();
-    }
-  </script>
 </body>
 </html>
