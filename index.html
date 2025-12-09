@@ -295,6 +295,20 @@
         ]
       }
     ];
+
+    // Referencias al DOM
+    const loginBtn        = document.getElementById("loginBtn");
+    const logoutBtn       = document.getElementById("logoutBtn");
+    const emailInput      = document.getElementById("email");
+    const passwordInput   = document.getElementById("password");
+    const authStatus      = document.getElementById("authStatus");
+    const authSection     = document.getElementById("authSection");
+    const logoutSection   = document.getElementById("logoutSection");
+    const userEmailLabel  = document.getElementById("userEmailLabel");
+    const loggedUserEmail = document.getElementById("loggedUserEmail");
+    const labSelect       = document.getElementById("labSelect");
+    const equipmentSelect = document.getElementById("equipmentSelect");
+
     
     // Rellena los selects de lab y equipo
     function populateLabsAndEquipments() {
@@ -347,18 +361,6 @@
     // Inicializar selects al cargar el script
     populateLabsAndEquipments();
 
-    // Referencias al DOM
-    const loginBtn        = document.getElementById("loginBtn");
-    const logoutBtn       = document.getElementById("logoutBtn");
-    const emailInput      = document.getElementById("email");
-    const passwordInput   = document.getElementById("password");
-    const authStatus      = document.getElementById("authStatus");
-    const authSection     = document.getElementById("authSection");
-    const logoutSection   = document.getElementById("logoutSection");
-    const userEmailLabel  = document.getElementById("userEmailLabel");
-    const loggedUserEmail = document.getElementById("loggedUserEmail");
-    const labSelect       = document.getElementById("labSelect");
-    const equipmentSelect = document.getElementById("equipmentSelect");
 
 
 
@@ -556,6 +558,7 @@
   </script>
 </body>
 </html>
+
 
 
 
