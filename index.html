@@ -187,17 +187,9 @@
             <select id="equipmentSelect"></select>
           </div>
           <div class="toolbar-item">
-            <label for="durationSelect">Duración</label>
-            <select id="durationSelect">
-              <option value="15">15 minutos</option>
-              <option value="30">30 minutos</option>
-              <option value="60" selected>1 hora</option>
-            </select>
-          </div>
-          <div class="toolbar-item">
             <label>Instrucciones</label>
             <span class="small-text">
-              Inicia sesión, elige equipo y arrastra en el calendario para reservar.
+              Inicia sesión, elige equipo y arrastra en el calendario para reservar en bloques de 15 minutos.
             </span>
           </div>
         </div>
@@ -261,7 +253,6 @@
     const userEmailLabel  = document.getElementById("userEmailLabel");
     const loggedUserEmail = document.getElementById("loggedUserEmail");
     const equipmentSelect = document.getElementById("equipmentSelect");
-    const durationSelect  = document.getElementById("durationSelect");
 
     // Llenar el select de equipamiento
     EQUIPMENTS.forEach(eq => {
@@ -283,9 +274,10 @@
       calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: "timeGridWeek",
         locale: "es",
-        slotDuration: "00:15:00",
-        slotMinTime: "08:00:00",
-        slotMaxTime: "20:00:00",
+        slotDuration: "00:15:00",     // grilla de 15 minutos
+        snapDuration: "00:15:00",     // arrastre salta de a 15 minutos
+        slotMinTime: "07:00:00",
+        slotMaxTime: "22:00:00",
         allDaySlot: false,
         selectable: true,
         selectMirror: true,
@@ -295,6 +287,7 @@
           center: "title",
           right: "timeGridDay,timeGridWeek,dayGridMonth"
         },
+        selectAllow: () => !!currentUser,  // solo seleccionar si está logueado (si ya lo usabas)
         select: handleDateSelect
       });
 
@@ -405,30 +398,33 @@
         calendar.unselect();
         return;
       }
-
+    
       const equipmentId = equipmentSelect.value;
-      const durationMin = parseInt(durationSelect.value, 10) || 60;
-
+    
+      // Usamos exactamente lo que el usuario arrastró
       const start = selectionInfo.start;
-      const end   = new Date(start.getTime() + durationMin * 60000);
-
+      const end   = selectionInfo.end;
+    
+      // Calculamos la duración en minutos
+      const durationMin = Math.round((end.getTime() - start.getTime()) / 60000);
+    
       const eqName = (EQUIPMENTS.find(e => e.id === equipmentId) || {}).name || equipmentId;
-
+    
       const confirmText = `
-Equipo: ${eqName}
-Usuario: ${currentUser.email}
-Inicio: ${start.toLocaleString()}
-Fin: ${end.toLocaleString()}
-Duración: ${durationMin} minutos
-
-¿Confirmar reserva?`;
-
+    Equipo: ${eqName}
+    Usuario: ${currentUser.email}
+    Inicio: ${start.toLocaleString()}
+    Fin: ${end.toLocaleString()}
+    Duración: ${durationMin} minutos
+    
+    ¿Confirmar reserva?`;
+    
       const ok = confirm(confirmText);
       if (!ok) {
         calendar.unselect();
         return;
       }
-
+    
       try {
         await addDoc(collection(db, "reservations"), {
           equipmentId,
@@ -442,10 +438,12 @@ Duración: ${durationMin} minutos
         console.error("Error creando reserva:", err);
         alert("Error al crear la reserva: " + err.message);
       }
-
+    
       calendar.unselect();
-    }
+}
+
   </script>
 </body>
 </html>
+
 
