@@ -324,6 +324,14 @@
           </div>
 
           <div class="toolbar-item">
+            <label>&nbsp;</label>
+            <label class="small-text">
+              <input type="checkbox" id="qpcrGroupCheckbox">
+              <span data-i18n="qpcrGroupLabel">Reservar los 4 qPCR</span>
+            </label>
+          </div>
+          
+          <div class="toolbar-item">
             <label for="equipmentSelect" data-i18n="equipmentLabel">Equipo</label>
             <select id="equipmentSelect"></select>
           </div>
@@ -380,8 +388,10 @@
       Timestamp,
       serverTimestamp,
       doc,
-      deleteDoc
+      deleteDoc,
+      getDocs
     } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+
 
     const firebaseConfig = {
       apiKey: "AIzaSyA98AI1BeF-f6WWiQHe_bKoBe0KlaFwfcE",
@@ -397,6 +407,13 @@
       "leo@example.com"
     ];
 
+    const QPCR_GROUP = [
+      "lab403_qpcr_roger",
+      "lab403_qpcr_freddie",
+      "lab403_qpcr_john",
+      "lab403_qpcr_brian"
+    ];
+    
     const LABS = [
       {
         id: "lab403_cultivo",
@@ -548,7 +565,8 @@
         status_available: "Disponible",
         status_maintenance: "En mantenimiento",
         status_out: "Fuera de servicio",
-        status_unknown: "Estado desconocido"
+        status_unknown: "Estado desconocido",
+        qpcrGroupLabel: "Reservar los 4 qPCR"
       },
       en: {
         title: "Equipment Booking System",
@@ -605,7 +623,8 @@
         status_available: "Available",
         status_maintenance: "Under maintenance",
         status_out: "Out of service",
-        status_unknown: "Unknown status"
+        status_unknown: "Unknown status",
+        qpcrGroupLabel: "Book all 4 qPCR units"
       },
       ja: {
         title: "機器予約システム",
@@ -662,7 +681,8 @@
         status_available: "使用可能",
         status_maintenance: "メンテナンス中",
         status_out: "使用停止",
-        status_unknown: "不明"
+        status_unknown: "不明",
+        qpcrGroupLabel: "qPCR 4台すべてを予約する"
       }
     };
 
@@ -712,6 +732,8 @@
 
     const labSelectEl       = document.getElementById("labSelect");
     const equipmentSelect   = document.getElementById("equipmentSelect");
+    const qpcrGroupCheckbox = document.getElementById("qpcrGroupCheckbox");
+
 
     const myReservationsBlock = document.getElementById("myReservationsBlock");
     const myReservationsInfo  = document.getElementById("myReservationsInfo");
@@ -759,6 +781,18 @@
       applyI18n();
     });
 
+    function updateQpcrCheckboxVisibility() {
+      if (!qpcrGroupCheckbox) return;
+      if (QPCR_GROUP.includes(equipmentSelect.value)) {
+        qpcrGroupCheckbox.disabled = false;
+        qpcrGroupCheckbox.parentElement.style.opacity = "1";
+      } else {
+        qpcrGroupCheckbox.checked = false;
+        qpcrGroupCheckbox.disabled = true;
+        qpcrGroupCheckbox.parentElement.style.opacity = "0.4";
+      }
+    }
+   
     function isAdmin(email) {
       if (!email) return false;
       return ADMIN_EMAILS.includes(email.toLowerCase());
@@ -794,13 +828,16 @@
       if (equipmentSelect.value) {
         subscribeToEquipmentReservations(equipmentSelect.value);
       }
+      updateQpcrCheckboxVisibility();
     });
 
     equipmentSelect.addEventListener("change", () => {
       if (equipmentSelect.value) {
         subscribeToEquipmentReservations(equipmentSelect.value);
       }
+      updateQpcrCheckboxVisibility();
     });
+
 
     const calendarEl = document.getElementById("calendar");
     calendar = new FullCalendar.Calendar(calendarEl, {
@@ -842,6 +879,7 @@
       }
     } else if (equipmentSelect.value) {
       subscribeToEquipmentReservations(equipmentSelect.value);
+      updateQpcrCheckboxVisibility();
     }
 
     loginBtn.addEventListener("click", async () => {
@@ -1156,66 +1194,132 @@
         calendar.unselect();
         return;
       }
+    
       const equipmentId = equipmentSelect.value;
-      const status = EQUIPMENT_STATUS[equipmentId] || "available";
-      if (status !== "available") {
-        alert(equipmentStatusLabel(status));
-        calendar.unselect();
-        return;
-      }
       const labId = labSelectEl.value;
       const lab = LABS.find(l => l.id === labId);
-      const eq  = lab?.equipments.find(e => e.id === equipmentId);
+    
       const start = info.start;
       const end   = info.end;
       const now = new Date();
+    
       if (start < now) {
         alert(t("cannotReservePast"));
         calendar.unselect();
         return;
       }
-      const overlap = calendar.getEvents().some(ev => {
-        const s = ev.start, e = ev.end;
-        if (!s || !e) return false;
-        return start < e && end > s;
-      });
-      if (overlap) {
-        alert(t("overlapError"));
-        calendar.unselect();
-        return;
+    
+      // ¿Reservar solo este equipo o todo el grupo qPCR?
+      let targetEquipmentIds = [equipmentId];
+      const replicateQpcr = QPCR_GROUP.includes(equipmentId) && qpcrGroupCheckbox && qpcrGroupCheckbox.checked;
+    
+      if (replicateQpcr) {
+        targetEquipmentIds = QPCR_GROUP.slice();
       }
+    
+      // Verificar estado de todos los equipos involucrados
+      for (const eqId of targetEquipmentIds) {
+        const st = EQUIPMENT_STATUS[eqId] || "available";
+        if (st !== "available") {
+          alert(equipmentStatusLabel(st));
+          calendar.unselect();
+          return;
+        }
+      }
+    
+      // Si es solo 1 equipo, usamos el check rápido del calendario (como antes)
+      if (!replicateQpcr) {
+        const overlap = calendar.getEvents().some(ev => {
+          const s = ev.start, e = ev.end;
+          if (!s || !e) return false;
+          return start < e && end > s;
+        });
+        if (overlap) {
+          alert(t("overlapError"));
+          calendar.unselect();
+          return;
+        }
+      } else {
+        // Si es el grupo qPCR, chequeamos en Firestore para TODOS los equipos del grupo
+        const newStart = start;
+        const newEnd   = end;
+    
+        for (const eqId of targetEquipmentIds) {
+          const q = query(collection(db, "reservations"), where("equipmentId", "==", eqId));
+          const snap = await getDocs(q);
+          const hasOverlap = snap.docs.some(docSnap => {
+            const d = docSnap.data();
+            const s = d.start instanceof Timestamp ? d.start.toDate() : d.start;
+            const e = d.end   instanceof Timestamp ? d.end.toDate()   : d.end;
+            return newStart < e && newEnd > s;
+          });
+          if (hasOverlap) {
+            alert(t("overlapError"));
+            calendar.unselect();
+            return;
+          }
+        }
+      }
+    
+      // Construir mensaje de confirmación
       const durMin = Math.round((end.getTime() - start.getTime())/60000);
       const labLabel = lab ? lab.name : labId;
-      const eqLabel  = eq  ? eq.name  : equipmentId;
-      const msg =
-        t("confirmLab") + ": " + labLabel + "\n" +
-        t("confirmEquipment") + ": " + eqLabel + "\n" +
-        t("confirmUser") + ": " + currentUser.email + "\n" +
-        t("confirmStart") + ": " + start.toLocaleString(browserLocale()) + "\n" +
-        t("confirmEnd")   + ": " + end.toLocaleString(browserLocale()) + "\n" +
-        t("confirmDuration") + ": " + durMin + " " + t("minutesWord") + "\n\n" +
+    
+      const loc = browserLocale();
+      const startStr = start.toLocaleString(loc);
+      const endStr   = end.toLocaleString(loc);
+    
+      let eqLabelBase = equipmentId;
+      const eqObj = lab?.equipments.find(e => e.id === equipmentId);
+      if (eqObj) eqLabelBase = eqObj.name;
+    
+      let confirmMsg =
+        t("confirmLab") + ": " + labLabel + "\\n" +
+        t("confirmEquipment") + ": " + (replicateQpcr ? (eqLabelBase + " (x4)") : eqLabelBase) + "\\n" +
+        t("confirmUser") + ": " + currentUser.email + "\\n" +
+        t("confirmStart") + ": " + startStr + "\\n" +
+        t("confirmEnd")   + ": " + endStr + "\\n" +
+        t("confirmDuration") + ": " + durMin + " " + t("minutesWord") + "\\n\\n" +
         t("confirmQuestion");
-      if (!confirm(msg)) {
+    
+      if (!confirm(confirmMsg)) {
         calendar.unselect();
         return;
       }
+    
       try {
-        await addDoc(collection(db, "reservations"), {
-          labId,
-          labName: labLabel,
-          equipmentId,
-          equipmentName: eqLabel,
-          start: Timestamp.fromDate(start),
-          end:   Timestamp.fromDate(end),
-          userId: currentUser.uid,
-          userEmail: currentUser.email,
-          createdAt: serverTimestamp()
-        });
+        const promises = [];
+    
+        for (const eqId of targetEquipmentIds) {
+          const labForEq = LABS.find(l => l.equipments.some(e => e.id === eqId)) || lab;
+          const eqMeta   = labForEq?.equipments.find(e => e.id === eqId);
+          const finalLabId   = labForEq ? labForEq.id : labId;
+          const finalLabName = labForEq ? labForEq.name : labLabel;
+          const finalEqName  = eqMeta ? eqMeta.name : eqId;
+    
+          promises.push(
+            addDoc(collection(db, "reservations"), {
+              labId: finalLabId,
+              labName: finalLabName,
+              equipmentId: eqId,
+              equipmentName: finalEqName,
+              start: Timestamp.fromDate(start),
+              end:   Timestamp.fromDate(end),
+              userId: currentUser.uid,
+              userEmail: currentUser.email,
+              createdAt: serverTimestamp()
+            })
+          );
+        }
+    
+        await Promise.all(promises);
       } catch (err) {
         alert("Error: " + err.message);
       }
+    
       calendar.unselect();
     }
+
   </script>
 </body>
 </html>
