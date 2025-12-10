@@ -404,7 +404,7 @@
     const db   = getFirestore(app);
 
     const ADMIN_EMAILS = [
-      "leo@example.com"
+      "lalbarracin@tohoku.ac.jp"
     ];
 
     const QPCR_GROUP = [
@@ -783,15 +783,20 @@
 
     function updateQpcrCheckboxVisibility() {
       if (!qpcrGroupCheckbox) return;
+    
       if (QPCR_GROUP.includes(equipmentSelect.value)) {
         qpcrGroupCheckbox.disabled = false;
-        qpcrGroupCheckbox.parentElement.style.opacity = "1";
+        qpcrGroupCheckbox.style.opacity = "1";
+        qpcrGroupCheckbox.parentElement.style.color = "#000";
       } else {
         qpcrGroupCheckbox.checked = false;
         qpcrGroupCheckbox.disabled = true;
-        qpcrGroupCheckbox.parentElement.style.opacity = "0.4";
+        qpcrGroupCheckbox.style.opacity = "0";          // oculta el cuadrito
+        qpcrGroupCheckbox.parentElement.style.color = "#f5f5f5";  // oculta el texto
       }
     }
+
+
    
     function isAdmin(email) {
       if (!email) return false;
