@@ -4,9 +4,11 @@
   <meta charset="UTF-8" />
   <title>Reservas de Equipamiento</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <!-- FullCalendar -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/6.1.19/index.global.min.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/6.1.19/index.global.min.js"></script>
+
   <style>
     :root {
       --primary: #0f5175;
@@ -16,16 +18,19 @@
       --border: #dddddd;
       --danger: #c0392b;
     }
+
     * {
       box-sizing: border-box;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
+
     body {
       margin: 0;
       padding: 0;
       background: var(--bg);
       color: #333;
     }
+
     header {
       background: var(--primary);
       color: #fff;
@@ -36,10 +41,12 @@
       flex-wrap: wrap;
       gap: 0.75rem;
     }
+
     header h1 {
       margin: 0;
       font-size: 1.2rem;
     }
+
     .header-right {
       display: flex;
       align-items: center;
@@ -47,13 +54,16 @@
       flex-wrap: wrap;
       font-size: 0.9rem;
     }
+
     .user-info {
       font-size: 0.9rem;
     }
+
     .lang-select-label {
       font-size: 0.8rem;
       opacity: 0.9;
     }
+
     #langSelect {
       padding: 0.25rem 0.4rem;
       border-radius: 4px;
@@ -62,24 +72,29 @@
       color: #fff;
       font-size: 0.8rem;
     }
+
     #langSelect option {
       color: #000;
     }
+
     main {
       padding: 1rem;
       max-width: 1200px;
       margin: 0 auto;
     }
+
     .layout {
       display: grid;
       grid-template-columns: minmax(260px, 320px) 1fr;
       gap: 1rem;
     }
+
     @media (max-width: 800px) {
       .layout {
         grid-template-columns: 1fr;
       }
     }
+
     .card {
       background: var(--card-bg);
       border-radius: 8px;
@@ -87,16 +102,19 @@
       padding: 1rem;
       box-shadow: 0 2px 6px rgba(0,0,0,0.06);
     }
+
     .card h2 {
       margin-top: 0;
       font-size: 1.1rem;
       margin-bottom: 0.75rem;
     }
+
     label {
       display: block;
       font-size: 0.85rem;
       margin-bottom: 0.2rem;
     }
+
     input[type="email"],
     input[type="password"],
     select {
@@ -107,6 +125,7 @@
       margin-bottom: 0.6rem;
       font-size: 0.9rem;
     }
+
     button {
       border: none;
       border-radius: 4px;
@@ -114,48 +133,59 @@
       font-size: 0.9rem;
       cursor: pointer;
     }
+
     .btn-primary {
       background: var(--primary);
       color: #fff;
     }
+
     .btn-danger {
       background: var(--danger);
       color: #fff;
     }
+
     .btn-secondary {
       background: var(--primary-light);
       color: #003142;
     }
+
     .btn-group {
       display: flex;
       flex-wrap: wrap;
       gap: 0.5rem;
       margin-top: 0.4rem;
     }
+
     .small-text {
       font-size: 0.8rem;
       color: #555;
     }
+
     .status {
       margin-top: 0.5rem;
       font-size: 0.8rem;
       min-height: 1.1em;
     }
+
     .status.error {
       color: var(--danger);
     }
+
     .toolbar {
       display: flex;
       flex-wrap: wrap;
       gap: 0.6rem;
-      align-items: center;
+      align-items: flex-start;
       margin-bottom: 0.7rem;
     }
+
     .toolbar-item {
       display: flex;
       flex-direction: column;
       font-size: 0.8rem;
+      min-width: 180px;
     }
+
     #calendar {
       background: #fff;
       border-radius: 8px;
@@ -163,11 +193,13 @@
       border: 1px solid var(--border);
       min-height: 550px;
     }
+
     ul.reservation-list {
       list-style: none;
       padding-left: 0;
       margin: 0.4rem 0 0;
     }
+
     ul.reservation-list li {
       margin-bottom: 0.4rem;
       border-bottom: 1px dashed #ddd;
@@ -177,13 +209,34 @@
       gap: 0.5rem;
       align-items: flex-start;
     }
+
     .reservation-text {
       flex: 1;
     }
+
     .reservation-actions button {
       font-size: 0.75rem;
       padding: 0.25rem 0.4rem;
     }
+
+    .qr-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.25rem;
+      padding: 0.3rem 0.5rem;
+      border-radius: 6px;
+      border: 1px dashed var(--border);
+      background: #fafafa;
+    }
+
+    .qr-box img {
+      max-width: 160px;
+      height: auto;
+      display: block;
+    }
+
     @media (max-width: 600px) {
       .fc .fc-toolbar-title {
         font-size: 1rem;
@@ -218,6 +271,7 @@
 
   <main>
     <div class="layout">
+      <!-- Columna izquierda: acceso + mis reservas -->
       <section class="card">
         <h2 data-i18n="accessTitle">Acceso de usuarios</h2>
 
@@ -259,6 +313,7 @@
         </div>
       </section>
 
+      <!-- Columna derecha: calendario + admin -->
       <section class="card">
         <h2 data-i18n="calendarTitle">Calendario de reservas</h2>
 
@@ -280,6 +335,13 @@
               No se permiten reservas en el pasado ni superpuestas.
             </span>
           </div>
+
+          <div class="toolbar-item">
+            <label data-i18n="qrLabel">QR del equipo seleccionado</label>
+            <div id="qrContainer" class="qr-box">
+              <span class="small-text" data-i18n="qrHelpText">Selecciona un equipo para generar un código QR.</span>
+            </div>
+          </div>
         </div>
 
         <div id="calendar"></div>
@@ -288,9 +350,18 @@
       <section class="card" id="adminSection" style="display:none;">
         <h2 data-i18n="adminTitle">Vista administrador</h2>
         <p class="small-text" data-i18n="adminDescription">
-          Lista de todas las reservas (solo lectura). Configura los correos de administradores en el código.
+          Historial completo de reservas y estadísticas del uso de equipamiento.
         </p>
+
+        <h3 data-i18n="adminHistoryTitle">Historial de reservas</h3>
         <ul id="adminReservationsList" class="reservation-list"></ul>
+
+        <h3 data-i18n="adminStatsTitle">Estadísticas</h3>
+        <p id="adminStatsSummary" class="small-text"></p>
+        <ul id="adminStatsDetails" class="small-text"></ul>
+
+        <h3 data-i18n="adminEquipmentStatusTitle">Estado de equipos</h3>
+        <ul id="adminEquipmentStatusList" class="small-text"></ul>
       </section>
     </div>
   </main>
@@ -328,64 +399,104 @@
     const auth = getAuth(app);
     const db   = getFirestore(app);
 
-    const ADMIN_EMAILS = ["lalbarracin@tohoku.ac.jp",
-                         "jvillena@tohoku.ac.jp",
-                         "haruki.kitazawa.c7@tohoku.ac.jp"];
+    const ADMIN_EMAILS = [
+      "leo@example.com"
+    ];
 
     const LABS = [
       {
-        id: "room403_cultivo",
-        name: "ROOM W403 – Cell culture room",
+        id: "lab403_cultivo",
+        name: "LAB403 – Cuarto de Cultivo",
         equipments: [
-          { id: "room403_cultivo_flujo_grande", name: "Bioclean Bench (Big-大)" },
-          { id: "room403_cultivo_flujo_virus",  name: "Bioclean Bench (Small-小)" }
+          { id: "lab403_cultivo_flujo_grande", name: "Flujo grande" },
+          { id: "lab403_cultivo_flujo_virus",  name: "Flujo Virus" }
         ]
       },
       {
-        id: "room403_bacteria",
-        name: "ROOM W403 – Bacterial room",
+        id: "lab403_bacteria",
+        name: "LAB403 – Cuarto de Bacteria",
         equipments: [
-          { id: "room403_bacteria_flujo_grande", name: "Bioclean Bench (Big-大)" },
-          { id: "room403_bacteria_flujo_virus",  name: "Bioclean Bench (Small-小)" }
+          { id: "lab403_bacteria_flujo_grande", name: "Flujo grande" },
+          { id: "lab403_bacteria_flujo_virus",  name: "Flujo Virus" }
         ]
       },
       {
-        id: "room403_qpcr",
-        name: "ROOM W403 – qPCR",
+        id: "lab403_qpcr",
+        name: "LAB403 – qPCR",
         equipments: [
-          { id: "room403_qpcr_roger",   name: "qPCR ROGER" },
-          { id: "room403_qpcr_freddie", name: "qPCR FREDDIE" },
-          { id: "room403_qpcr_john",    name: "qPCR JOHN" },
-          { id: "room403_qpcr_brian",   name: "qPCR BRIAN" }
+          { id: "lab403_qpcr_roger",   name: "qPCR ROGER" },
+          { id: "lab403_qpcr_freddie", name: "qPCR FREDDIE" },
+          { id: "lab403_qpcr_john",    name: "qPCR JOHN" },
+          { id: "lab403_qpcr_brian",   name: "qPCR BRIAN" }
         ]
       },
       {
-        id: "room403_pcr",
-        name: "ROOM W403 – PCR",
+        id: "lab403_pcr",
+        name: "LAB403 – PCR",
         equipments: [
-          { id: "room403_pcr_lennon",    name: "PCR Lennon" },
-          { id: "room403_pcr_mccartney", name: "PCR McCartney" },
-          { id: "room403_pcr_harrison",  name: "PCR Harrison" },
-          { id: "room403_pcr_starr",     name: "PCR Starr" }
+          { id: "lab403_pcr_lennon",    name: "PCR Lennon" },
+          { id: "lab403_pcr_mccartney", name: "PCR McCartney" },
+          { id: "lab403_pcr_harrison",  name: "PCR Harrison" },
+          { id: "lab403_pcr_starr",     name: "PCR Starr" }
         ]
       },
       {
-        id: "room403 General",
-        name: "ROOM W403 – General",
+        id: "lab403_general",
+        name: "LAB403 – General",
         equipments: [
-          { id: "room403_wb",        name: "Western Blot" },
-          { id: "room403_mic_fluor", name: "Microscopio FLUORESCENCIA" }
+          { id: "lab403_wb",        name: "Western Blot" },
+          { id: "lab403_mic_fluor", name: "Microscopio FLUORESCENCIA" }
         ]
       },
       {
-        id: "room103",
-        name: "ROOM A103",
+        id: "lab_a103",
+        name: "LAB A103",
         equipments: [
-          { id: "room103_flujo",     name: "Bioclean Bench" },
-          { id: "room103_anaerobio", name: "Anaerobic chamber" }
+          { id: "lab_a103_flujo",     name: "Flujo" },
+          { id: "lab_a103_anaerobio", name: "Cabina anaerobiosis" }
         ]
       }
     ];
+
+    // Colores suaves por equipo
+    const EQUIPMENT_COLORS = {
+      lab403_cultivo_flujo_grande: "#72D0DB",
+      lab403_cultivo_flujo_virus:  "#F6E1C0",
+      lab403_bacteria_flujo_grande: "#9EC46C",
+      lab403_bacteria_flujo_virus:  "#F6B443",
+      lab403_qpcr_roger:   "#BE417F33",
+      lab403_qpcr_freddie: "#32A7B133",
+      lab403_qpcr_john:    "#0F517533",
+      lab403_qpcr_brian:   "#F59BB133",
+      lab403_pcr_lennon:    "#72D0DB66",
+      lab403_pcr_mccartney: "#9EC46C66",
+      lab403_pcr_harrison:  "#F6B44366",
+      lab403_pcr_starr:     "#BE417F66",
+      lab403_wb:            "#F6E1C099",
+      lab403_mic_fluor:     "#32A7B199",
+      lab_a103_flujo:       "#72D0DB99",
+      lab_a103_anaerobio:   "#9EC46C99"
+    };
+
+    // Estado de equipos (editable a mano por ahora)
+    const EQUIPMENT_STATUS = {
+      lab403_cultivo_flujo_grande: "available",
+      lab403_cultivo_flujo_virus:  "available",
+      lab403_bacteria_flujo_grande: "available",
+      lab403_bacteria_flujo_virus:  "available",
+      lab403_qpcr_roger:   "available",
+      lab403_qpcr_freddie: "available",
+      lab403_qpcr_john:    "available",
+      lab403_qpcr_brian:   "available",
+      lab403_pcr_lennon:    "available",
+      lab403_pcr_mccartney: "maintenance",
+      lab403_pcr_harrison:  "available",
+      lab403_pcr_starr:     "available",
+      lab403_wb:            "available",
+      lab403_mic_fluor:     "available",
+      lab_a103_flujo:       "available",
+      lab_a103_anaerobio:   "available"
+    };
 
     const LANG = {
       es: {
@@ -410,8 +521,14 @@
         equipmentLabel: "Equipo",
         instructionsLabel: "Instrucciones",
         instructionsText: "Inicia sesión, elige sala y equipo, y arrastra en el calendario para reservar en bloques de 15 minutos. No se permiten reservas en el pasado ni superpuestas.",
+        qrLabel: "QR del equipo seleccionado",
+        qrHelpText: "Selecciona un equipo para generar un código QR.",
+        qrNote: "Escanea este código para abrir directamente el calendario de este equipo.",
         adminTitle: "Vista administrador",
-        adminDescription: "Lista de todas las reservas (solo lectura). Configura los correos de administradores en el código.",
+        adminDescription: "Historial completo de reservas y estadísticas del uso de equipamiento.",
+        adminHistoryTitle: "Historial de reservas",
+        adminStatsTitle: "Estadísticas",
+        adminEquipmentStatusTitle: "Estado de equipos",
         errorFillEmailPassword: "Completa email y contraseña.",
         loginSuccess: "Inicio de sesión correcto.",
         errorResetEmailMissing: "Ingresa tu email para enviar el enlace de recuperación.",
@@ -431,7 +548,13 @@
         confirmEnd: "Fin",
         confirmDuration: "Duración",
         minutesWord: "minutos",
-        confirmQuestion: "¿Confirmar reserva?"
+        confirmQuestion: "¿Confirmar reserva?",
+        statsSummary: "Reservas totales: {TOTAL}, usuarios únicos: {USERS}.",
+        statsTopEquipmentTitle: "Equipos más utilizados:",
+        status_available: "Disponible",
+        status_maintenance: "En mantenimiento",
+        status_out: "Fuera de servicio",
+        status_unknown: "Estado desconocido"
       },
       en: {
         title: "Equipment Booking System",
@@ -455,8 +578,14 @@
         equipmentLabel: "Equipment",
         instructionsLabel: "Instructions",
         instructionsText: "Log in, select a room and equipment, then drag on the calendar to book in 15-minute blocks. Past and overlapping bookings are not allowed.",
+        qrLabel: "Selected equipment QR",
+        qrHelpText: "Select an equipment to generate a QR code.",
+        qrNote: "Scan this code to open this equipment calendar directly.",
         adminTitle: "Admin view",
-        adminDescription: "List of all bookings (read-only). Configure admin email addresses in the code.",
+        adminDescription: "Full booking history and equipment usage statistics.",
+        adminHistoryTitle: "Booking history",
+        adminStatsTitle: "Statistics",
+        adminEquipmentStatusTitle: "Equipment status",
         errorFillEmailPassword: "Please fill in email and password.",
         loginSuccess: "Login successful.",
         errorResetEmailMissing: "Enter your email to send the reset link.",
@@ -476,7 +605,13 @@
         confirmEnd: "End",
         confirmDuration: "Duration",
         minutesWord: "minutes",
-        confirmQuestion: "Confirm this booking?"
+        confirmQuestion: "Confirm this booking?",
+        statsSummary: "Total bookings: {TOTAL}, unique users: {USERS}.",
+        statsTopEquipmentTitle: "Most used equipment:",
+        status_available: "Available",
+        status_maintenance: "Under maintenance",
+        status_out: "Out of service",
+        status_unknown: "Unknown status"
       },
       ja: {
         title: "機器予約システム",
@@ -490,7 +625,7 @@
         loginBtn: "ログイン",
         forgotPasswordBtn: "パスワードをお忘れの場合",
         noUserText: "アカウントがない場合は、管理者にお問い合わせください。",
-        loggedInAs: "ログイン中：",
+        loggedInAs: "ログイン中のユーザー：",
         changePasswordBtn: "パスワード変更",
         logoutBtn: "ログアウト",
         myReservationsTitle: "自分の予約",
@@ -500,8 +635,14 @@
         equipmentLabel: "機器",
         instructionsLabel: "使用方法",
         instructionsText: "ログイン後、部屋と機器を選択し、カレンダー上でドラッグして15分単位で予約してください。過去や重複する時間帯には予約できません。",
+        qrLabel: "選択中の機器のQRコード",
+        qrHelpText: "機器を選択するとQRコードが表示されます。",
+        qrNote: "このコードを読み取ると、この機器のカレンダーが開きます。",
         adminTitle: "管理者ビュー",
-        adminDescription: "すべての予約一覧（閲覧のみ）。管理者メールアドレスはコード内で設定してください。",
+        adminDescription: "全ての予約履歴と機器利用状況の統計。",
+        adminHistoryTitle: "予約履歴",
+        adminStatsTitle: "統計情報",
+        adminEquipmentStatusTitle: "機器の状態",
         errorFillEmailPassword: "メールアドレスとパスワードを入力してください。",
         loginSuccess: "ログインに成功しました。",
         errorResetEmailMissing: "メールアドレスを入力してください。",
@@ -521,7 +662,13 @@
         confirmEnd: "終了",
         confirmDuration: "時間",
         minutesWord: "分",
-        confirmQuestion: "この内容で予約しますか？"
+        confirmQuestion: "この内容で予約しますか？",
+        statsSummary: "予約総数: {TOTAL}件、利用ユーザー数: {USERS}人。",
+        statsTopEquipmentTitle: "よく利用される機器：",
+        status_available: "使用可能",
+        status_maintenance: "メンテナンス中",
+        status_out: "使用停止",
+        status_unknown: "不明"
       }
     };
 
@@ -549,29 +696,12 @@
       return "es";
     }
 
-    function applyI18n() {
-      document.querySelectorAll("[data-i18n]").forEach(el => {
-        const key = el.getAttribute("data-i18n");
-        el.textContent = t(key);
-      });
-      document.querySelectorAll("[data-i18n-placeholder]").forEach(el => {
-        const key = el.getAttribute("data-i18n-placeholder");
-        el.placeholder = t(key);
-      });
-      if (calendar) {
-        calendar.setOption("locale", fcLocale());
-        calendar.render();
-      }
-      renderAdminReservations(adminItemsCache);
+    function equipmentStatusLabel(status) {
+      if (status === "available") return t("status_available");
+      if (status === "maintenance") return t("status_maintenance");
+      if (status === "out_of_service") return t("status_out");
+      return t("status_unknown");
     }
-
-    langSelect.addEventListener("change", () => {
-      const newLang = langSelect.value;
-      if (!LANG[newLang]) return;
-      currentLang = newLang;
-      localStorage.setItem("labSchedulerLang", currentLang);
-      applyI18n();
-    });
 
     const loginBtn          = document.getElementById("loginBtn");
     const logoutBtn         = document.getElementById("logoutBtn");
@@ -588,23 +718,58 @@
 
     const labSelectEl       = document.getElementById("labSelect");
     const equipmentSelect   = document.getElementById("equipmentSelect");
+    const qrContainer       = document.getElementById("qrContainer");
 
     const myReservationsBlock = document.getElementById("myReservationsBlock");
     const myReservationsInfo  = document.getElementById("myReservationsInfo");
     const myReservationsList  = document.getElementById("myReservationsList");
 
-    const adminSection       = document.getElementById("adminSection");
+    const adminSectionEl       = document.getElementById("adminSection");
     const adminReservationsList = document.getElementById("adminReservationsList");
+    const adminStatsSummary    = document.getElementById("adminStatsSummary");
+    const adminStatsDetails    = document.getElementById("adminStatsDetails");
+    const adminEquipmentStatusList = document.getElementById("adminEquipmentStatusList");
 
-    function populateLabs() {
-      labSelectEl.innerHTML = "";
-      LABS.forEach(lab => {
-        const opt = document.createElement("option");
-        opt.value = lab.id;
-        opt.textContent = lab.name;
-        labSelectEl.appendChild(opt);
+    let calendar = null;
+    let currentUser = null;
+    let unsubReservations = null;
+    let myResUnsub = null;
+    let adminResUnsub = null;
+    let adminItemsCache = [];
+
+    function applyI18n() {
+      document.querySelectorAll("[data-i18n]").forEach(el => {
+        const key = el.getAttribute("data-i18n");
+        el.textContent = t(key);
       });
-      if (LABS.length) populateEquipments(LABS[0].id);
+      document.querySelectorAll("[data-i18n-placeholder]").forEach(el => {
+        const key = el.getAttribute("data-i18n-placeholder");
+        el.placeholder = t(key);
+      });
+      if (!currentUser) {
+        userEmailLabel.textContent = t("notLoggedIn");
+      }
+      if (calendar) {
+        calendar.setOption("locale", fcLocale());
+        calendar.render();
+      }
+      renderAdminReservations(adminItemsCache);
+      renderAdminStats(adminItemsCache);
+      renderEquipmentStatus();
+      updateEquipmentQR();
+    }
+
+    langSelect.addEventListener("change", () => {
+      const newLang = langSelect.value;
+      if (!LANG[newLang]) return;
+      currentLang = newLang;
+      localStorage.setItem("labSchedulerLang", currentLang);
+      applyI18n();
+    });
+
+    function isAdmin(email) {
+      if (!email) return false;
+      return ADMIN_EMAILS.includes(email.toLowerCase());
     }
 
     function populateEquipments(labId) {
@@ -619,23 +784,57 @@
       });
     }
 
-    labSelectEl.addEventListener("change", () => {
-      populateEquipments(labSelectEl.value);
-      if (equipmentSelect.value) subscribeToEquipmentReservations(equipmentSelect.value);
-    });
-
-    equipmentSelect.addEventListener("change", () => {
-      if (equipmentSelect.value) subscribeToEquipmentReservations(equipmentSelect.value);
-    });
+    function populateLabs() {
+      labSelectEl.innerHTML = "";
+      LABS.forEach(lab => {
+        const opt = document.createElement("option");
+        opt.value = lab.id;
+        opt.textContent = lab.name;
+        labSelectEl.appendChild(opt);
+      });
+      if (LABS.length) populateEquipments(LABS[0].id);
+    }
 
     populateLabs();
 
-    let calendar = null;
-    let currentUser = null;
-    let unsubReservations = null;
-    let myResUnsub = null;
-    let adminResUnsub = null;
-    let adminItemsCache = [];
+    labSelectEl.addEventListener("change", () => {
+      populateEquipments(labSelectEl.value);
+      if (equipmentSelect.value) {
+        subscribeToEquipmentReservations(equipmentSelect.value);
+        updateEquipmentQR();
+      }
+    });
+
+    equipmentSelect.addEventListener("change", () => {
+      if (equipmentSelect.value) {
+        subscribeToEquipmentReservations(equipmentSelect.value);
+        updateEquipmentQR();
+      }
+    });
+
+    function updateEquipmentQR() {
+      if (!qrContainer) return;
+      const equipmentId = equipmentSelect.value;
+      qrContainer.innerHTML = "";
+      if (!equipmentId) {
+        const span = document.createElement("span");
+        span.className = "small-text";
+        span.textContent = t("qrHelpText");
+        qrContainer.appendChild(span);
+        return;
+      }
+      const url = new URL(window.location.href);
+      url.searchParams.set("equipment", equipmentId);
+      const qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=" + encodeURIComponent(url.toString());
+      const img = document.createElement("img");
+      img.src = qrUrl;
+      img.alt = "QR";
+      qrContainer.appendChild(img);
+      const span = document.createElement("span");
+      span.className = "small-text";
+      span.textContent = t("qrNote");
+      qrContainer.appendChild(span);
+    }
 
     const calendarEl = document.getElementById("calendar");
     calendar = new FullCalendar.Calendar(calendarEl, {
@@ -661,10 +860,24 @@
       select: handleDateSelect
     });
     calendar.render();
+
     applyI18n();
 
-    if (equipmentSelect.value) {
+    // Si la URL trae ?equipment=... seleccionarlo automáticamente
+    const params = new URLSearchParams(window.location.search);
+    const equipmentParam = params.get("equipment");
+    if (equipmentParam) {
+      const lab = LABS.find(l => l.equipments.some(eq => eq.id === equipmentParam));
+      if (lab) {
+        labSelectEl.value = lab.id;
+        populateEquipments(lab.id);
+        equipmentSelect.value = equipmentParam;
+        subscribeToEquipmentReservations(equipmentParam);
+        updateEquipmentQR();
+      }
+    } else if (equipmentSelect.value) {
       subscribeToEquipmentReservations(equipmentSelect.value);
+      updateEquipmentQR();
     }
 
     loginBtn.addEventListener("click", async () => {
@@ -684,7 +897,6 @@
       } catch (err) {
         authStatus.textContent = err.message;
         authStatus.classList.add("error");
-        console.error(err);
       }
     });
 
@@ -703,7 +915,6 @@
       } catch (err) {
         authStatus.textContent = err.message;
         authStatus.classList.add("error");
-        console.error(err);
       }
     });
 
@@ -723,18 +934,12 @@
       } catch (err) {
         passwordStatus.textContent = err.message;
         passwordStatus.classList.add("error");
-        console.error(err);
       }
     });
 
     logoutBtn.addEventListener("click", async () => {
       await signOut(auth);
     });
-
-    function isAdmin(email) {
-      if (!email) return false;
-      return ADMIN_EMAILS.includes(email.toLowerCase());
-    }
 
     onAuthStateChanged(auth, (user) => {
       currentUser = user;
@@ -775,13 +980,21 @@
           const labLabel = d.labName || d.labId || "";
           const eqLabel  = d.equipmentName || d.equipmentId || "Equipo";
           const userLabel= d.userEmail || "";
+          const color = EQUIPMENT_COLORS[d.equipmentId] || "#72D0DB";
           let title = `${eqLabel} (${userLabel})`;
           if (labLabel) title = `${labLabel} – ${eqLabel} (${userLabel})`;
-          events.push({ id: docSnap.id, title, start, end });
+          events.push({
+            id: docSnap.id,
+            title,
+            start,
+            end,
+            backgroundColor: color,
+            borderColor: color
+          });
         });
         events.sort((a,b) => a.start - b.start);
         events.forEach(ev => calendar.addEvent(ev));
-      }, err => console.error(err));
+      });
     }
 
     function startMyReservationsListener(uid) {
@@ -861,14 +1074,12 @@
 
     function startAdminReservationsListener() {
       stopAdminReservationsListener();
-    
       adminResUnsub = onSnapshot(collection(db, "reservations"), snap => {
         const items = [];
         snap.forEach(docSnap => {
           const d = docSnap.data();
           const start = d.start instanceof Timestamp ? d.start.toDate() : d.start;
           const end   = d.end   instanceof Timestamp ? d.end.toDate()   : d.end;
-    
           items.push({
             id: docSnap.id,
             start,
@@ -878,27 +1089,25 @@
             userEmail: d.userEmail || ""
           });
         });
-    
         items.sort((a,b) => a.start - b.start);
-    
-        // 🔹 guardamos la última lista en memoria
         adminItemsCache = items;
-    
-        // 🔹 y la renderizamos
         renderAdminReservations(adminItemsCache);
+        renderAdminStats(adminItemsCache);
+        renderEquipmentStatus();
       });
-    
-      adminSection.style.display = "block";
+      adminSectionEl.style.display = "block";
     }
-
 
     function stopAdminReservationsListener() {
       if (adminResUnsub) {
         adminResUnsub();
         adminResUnsub = null;
       }
-      adminSection.style.display = "none";
+      adminSectionEl.style.display = "none";
       adminReservationsList.innerHTML = "";
+      adminStatsSummary.textContent = "";
+      adminStatsDetails.innerHTML = "";
+      adminEquipmentStatusList.innerHTML = "";
       adminItemsCache = [];
     }
 
@@ -930,14 +1139,67 @@
       });
     }
 
+    function renderAdminStats(items) {
+      adminStatsSummary.textContent = "";
+      adminStatsDetails.innerHTML = "";
+      if (!items.length) return;
+      const total = items.length;
+      const userSet = new Set(items.map(i => i.userEmail || ""));
+      const summaryTemplate = t("statsSummary");
+      adminStatsSummary.textContent =
+        summaryTemplate.replace("{TOTAL}", total.toString()).replace("{USERS}", userSet.size.toString());
+
+      const countsByEquipment = {};
+      items.forEach(i => {
+        const key = i.equipmentName || i.equipmentId;
+        if (!key) return;
+        countsByEquipment[key] = (countsByEquipment[key] || 0) + 1;
+      });
+      const sorted = Object.entries(countsByEquipment).sort((a,b) => b[1] - a[1]).slice(0, 5);
+      if (!sorted.length) return;
+      const titleLi = document.createElement("li");
+      titleLi.textContent = t("statsTopEquipmentTitle");
+      adminStatsDetails.appendChild(titleLi);
+      sorted.forEach(([eq, c]) => {
+        const li = document.createElement("li");
+        li.textContent = `• ${eq}: ${c}`;
+        adminStatsDetails.appendChild(li);
+      });
+    }
+
+    function renderEquipmentStatus() {
+      adminEquipmentStatusList.innerHTML = "";
+      LABS.forEach(lab => {
+        const labLi = document.createElement("li");
+        labLi.innerHTML = `<strong>${lab.name}</strong>`;
+        const ul = document.createElement("ul");
+        ul.style.listStyle = "none";
+        ul.style.paddingLeft = "0.5rem";
+        lab.equipments.forEach(eq => {
+          const s = EQUIPMENT_STATUS[eq.id] || "unknown";
+          const li = document.createElement("li");
+          li.textContent = `${eq.name}: ${equipmentStatusLabel(s)}`;
+          ul.appendChild(li);
+        });
+        labLi.appendChild(ul);
+        adminEquipmentStatusList.appendChild(labLi);
+      });
+    }
+
     async function handleDateSelect(info) {
       if (!currentUser) {
         alert(t("cannotReserveWithoutLogin"));
         calendar.unselect();
         return;
       }
-      const labId = labSelectEl.value;
       const equipmentId = equipmentSelect.value;
+      const status = EQUIPMENT_STATUS[equipmentId] || "available";
+      if (status !== "available") {
+        alert(equipmentStatusLabel(status));
+        calendar.unselect();
+        return;
+      }
+      const labId = labSelectEl.value;
       const lab = LABS.find(l => l.id === labId);
       const eq  = lab?.equipments.find(e => e.id === equipmentId);
       const start = info.start;
