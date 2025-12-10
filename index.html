@@ -469,26 +469,6 @@
       }
     ];
 
-    // Colores suaves por equipo
-    const EQUIPMENT_COLORS = {
-      lab403_cultivo_flujo_grande: "#72D0DB",
-      lab403_cultivo_flujo_virus:  "#F6E1C0",
-      lab403_bacteria_flujo_grande: "#9EC46C",
-      lab403_bacteria_flujo_virus:  "#F6B443",
-      lab403_qpcr_roger:   "#BE417F33",
-      lab403_qpcr_freddie: "#32A7B133",
-      lab403_qpcr_john:    "#0F517533",
-      lab403_qpcr_brian:   "#F59BB133",
-      lab403_pcr_lennon:    "#72D0DB66",
-      lab403_pcr_mccartney: "#9EC46C66",
-      lab403_pcr_harrison:  "#F6B44366",
-      lab403_pcr_starr:     "#BE417F66",
-      lab403_wb:            "#F6E1C099",
-      lab403_mic_fluor:     "#32A7B199",
-      lab_a103_flujo:       "#72D0DB99",
-      lab_a103_anaerobio:   "#9EC46C99"
-    };
-
     // Estado de equipos (editable a mano por ahora)
     const EQUIPMENT_STATUS = {
       lab403_cultivo_flujo_grande: "available",
@@ -500,7 +480,7 @@
       lab403_qpcr_john:    "available",
       lab403_qpcr_brian:   "available",
       lab403_pcr_lennon:    "available",
-      lab403_pcr_mccartney: "maintenance",
+      lab403_pcr_mccartney: "available",
       lab403_pcr_harrison:  "available",
       lab403_pcr_starr:     "available",
       lab403_wb:            "available",
@@ -984,25 +964,38 @@
           const d = docSnap.data();
           const start = d.start instanceof Timestamp ? d.start.toDate() : d.start;
           const end   = d.end   instanceof Timestamp ? d.end.toDate()   : d.end;
-          const labLabel = d.labName || d.labId || "";
-          const eqLabel  = d.equipmentName || d.equipmentId || "Equipo";
-          const userLabel= d.userEmail || "";
-          const color = EQUIPMENT_COLORS[d.equipmentId] || "#72D0DB";
-          let title = `${eqLabel} (${userLabel})`;
-          if (labLabel) title = `${labLabel} – ${eqLabel} (${userLabel})`;
+    
+          // usuario sin dominio
+          const userEmail = d.userEmail || "";
+          const shortUser = userEmail.split("@")[0];
+    
+          // hora inicio y fin en formato HH:mm
+          const startStr = start.toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: false
+          });
+          const endStr = end.toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: false
+          });
+    
+          const title = `${startStr} - ${endStr} ${shortUser}`;
+    
           events.push({
             id: docSnap.id,
             title,
             start,
-            end,
-            backgroundColor: color,
-            borderColor: color
+            end
+            // sin backgroundColor ni borderColor → FullCalendar usa sus colores por defecto
           });
         });
         events.sort((a,b) => a.start - b.start);
         events.forEach(ev => calendar.addEvent(ev));
       });
     }
+
 
     function startMyReservationsListener(uid) {
       stopMyReservationsListener();
