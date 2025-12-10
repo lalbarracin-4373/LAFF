@@ -336,12 +336,6 @@
             </span>
           </div>
 
-          <div class="toolbar-item">
-            <label data-i18n="qrLabel">QR del equipo seleccionado</label>
-            <div id="qrContainer" class="qr-box">
-              <span class="small-text" data-i18n="qrHelpText">Selecciona un equipo para generar un código QR.</span>
-            </div>
-          </div>
         </div>
 
         <div id="calendar"></div>
@@ -718,7 +712,6 @@
 
     const labSelectEl       = document.getElementById("labSelect");
     const equipmentSelect   = document.getElementById("equipmentSelect");
-    const qrContainer       = document.getElementById("qrContainer");
 
     const myReservationsBlock = document.getElementById("myReservationsBlock");
     const myReservationsInfo  = document.getElementById("myReservationsInfo");
@@ -756,7 +749,6 @@
       renderAdminReservations(adminItemsCache);
       renderAdminStats(adminItemsCache);
       renderEquipmentStatus();
-      updateEquipmentQR();
     }
 
     langSelect.addEventListener("change", () => {
@@ -801,40 +793,14 @@
       populateEquipments(labSelectEl.value);
       if (equipmentSelect.value) {
         subscribeToEquipmentReservations(equipmentSelect.value);
-        updateEquipmentQR();
       }
     });
 
     equipmentSelect.addEventListener("change", () => {
       if (equipmentSelect.value) {
         subscribeToEquipmentReservations(equipmentSelect.value);
-        updateEquipmentQR();
       }
     });
-
-    function updateEquipmentQR() {
-      if (!qrContainer) return;
-      const equipmentId = equipmentSelect.value;
-      qrContainer.innerHTML = "";
-      if (!equipmentId) {
-        const span = document.createElement("span");
-        span.className = "small-text";
-        span.textContent = t("qrHelpText");
-        qrContainer.appendChild(span);
-        return;
-      }
-      const url = new URL(window.location.href);
-      url.searchParams.set("equipment", equipmentId);
-      const qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=" + encodeURIComponent(url.toString());
-      const img = document.createElement("img");
-      img.src = qrUrl;
-      img.alt = "QR";
-      qrContainer.appendChild(img);
-      const span = document.createElement("span");
-      span.className = "small-text";
-      span.textContent = t("qrNote");
-      qrContainer.appendChild(span);
-    }
 
     const calendarEl = document.getElementById("calendar");
     calendar = new FullCalendar.Calendar(calendarEl, {
@@ -873,11 +839,9 @@
         populateEquipments(lab.id);
         equipmentSelect.value = equipmentParam;
         subscribeToEquipmentReservations(equipmentParam);
-        updateEquipmentQR();
       }
     } else if (equipmentSelect.value) {
       subscribeToEquipmentReservations(equipmentSelect.value);
-      updateEquipmentQR();
     }
 
     loginBtn.addEventListener("click", async () => {
