@@ -562,6 +562,7 @@
         calendar.setOption("locale", fcLocale());
         calendar.render();
       }
+      renderAdminReservations(adminItemsCache);
     }
 
     langSelect.addEventListener("change", () => {
@@ -634,6 +635,7 @@
     let unsubReservations = null;
     let myResUnsub = null;
     let adminResUnsub = null;
+    let adminItemsCache = [];
 
     const calendarEl = document.getElementById("calendar");
     calendar = new FullCalendar.Calendar(calendarEl, {
@@ -859,12 +861,14 @@
 
     function startAdminReservationsListener() {
       stopAdminReservationsListener();
+    
       adminResUnsub = onSnapshot(collection(db, "reservations"), snap => {
         const items = [];
         snap.forEach(docSnap => {
           const d = docSnap.data();
           const start = d.start instanceof Timestamp ? d.start.toDate() : d.start;
           const end   = d.end   instanceof Timestamp ? d.end.toDate()   : d.end;
+    
           items.push({
             id: docSnap.id,
             start,
@@ -874,11 +878,19 @@
             userEmail: d.userEmail || ""
           });
         });
+    
         items.sort((a,b) => a.start - b.start);
-        renderAdminReservations(items);
+    
+        // 🔹 guardamos la última lista en memoria
+        adminItemsCache = items;
+    
+        // 🔹 y la renderizamos
+        renderAdminReservations(adminItemsCache);
       });
+    
       adminSection.style.display = "block";
     }
+
 
     function stopAdminReservationsListener() {
       if (adminResUnsub) {
@@ -887,6 +899,7 @@
       }
       adminSection.style.display = "none";
       adminReservationsList.innerHTML = "";
+      adminItemsCache = [];
     }
 
     function renderAdminReservations(items) {
