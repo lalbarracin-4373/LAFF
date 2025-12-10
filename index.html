@@ -4,11 +4,9 @@
   <meta charset="UTF-8" />
   <title>Reservas de Equipamiento</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <!-- FullCalendar (CSS + JS) -->
+  <!-- FullCalendar -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/6.1.19/index.global.min.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/6.1.19/index.global.min.js"></script>
-
   <style>
     :root {
       --primary: #0f5175;
@@ -18,19 +16,16 @@
       --border: #dddddd;
       --danger: #c0392b;
     }
-
     * {
       box-sizing: border-box;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
-
     body {
       margin: 0;
       padding: 0;
       background: var(--bg);
       color: #333;
     }
-
     header {
       background: var(--primary);
       color: #fff;
@@ -39,35 +34,52 @@
       align-items: center;
       justify-content: space-between;
       flex-wrap: wrap;
+      gap: 0.75rem;
     }
-
     header h1 {
       margin: 0;
       font-size: 1.2rem;
     }
-
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      font-size: 0.9rem;
+    }
     .user-info {
       font-size: 0.9rem;
     }
-
+    .lang-select-label {
+      font-size: 0.8rem;
+      opacity: 0.9;
+    }
+    #langSelect {
+      padding: 0.25rem 0.4rem;
+      border-radius: 4px;
+      border: 1px solid rgba(255,255,255,0.7);
+      background: rgba(255,255,255,0.15);
+      color: #fff;
+      font-size: 0.8rem;
+    }
+    #langSelect option {
+      color: #000;
+    }
     main {
       padding: 1rem;
       max-width: 1200px;
       margin: 0 auto;
     }
-
     .layout {
       display: grid;
       grid-template-columns: minmax(260px, 320px) 1fr;
       gap: 1rem;
     }
-
     @media (max-width: 800px) {
       .layout {
         grid-template-columns: 1fr;
       }
     }
-
     .card {
       background: var(--card-bg);
       border-radius: 8px;
@@ -75,19 +87,16 @@
       padding: 1rem;
       box-shadow: 0 2px 6px rgba(0,0,0,0.06);
     }
-
     .card h2 {
       margin-top: 0;
       font-size: 1.1rem;
       margin-bottom: 0.75rem;
     }
-
     label {
       display: block;
       font-size: 0.85rem;
       margin-bottom: 0.2rem;
     }
-
     input[type="email"],
     input[type="password"],
     select {
@@ -98,7 +107,6 @@
       margin-bottom: 0.6rem;
       font-size: 0.9rem;
     }
-
     button {
       border: none;
       border-radius: 4px;
@@ -106,44 +114,36 @@
       font-size: 0.9rem;
       cursor: pointer;
     }
-
     .btn-primary {
       background: var(--primary);
       color: #fff;
     }
-
     .btn-danger {
       background: var(--danger);
       color: #fff;
     }
-
     .btn-secondary {
       background: var(--primary-light);
       color: #003142;
     }
-
     .btn-group {
       display: flex;
       flex-wrap: wrap;
       gap: 0.5rem;
       margin-top: 0.4rem;
     }
-
     .small-text {
       font-size: 0.8rem;
       color: #555;
     }
-
     .status {
       margin-top: 0.5rem;
       font-size: 0.8rem;
       min-height: 1.1em;
     }
-
     .status.error {
       color: var(--danger);
     }
-
     .toolbar {
       display: flex;
       flex-wrap: wrap;
@@ -151,29 +151,23 @@
       align-items: center;
       margin-bottom: 0.7rem;
     }
-
     .toolbar-item {
       display: flex;
       flex-direction: column;
       font-size: 0.8rem;
     }
-
     #calendar {
       background: #fff;
       border-radius: 8px;
       padding: 0.5rem;
       border: 1px solid var(--border);
-      /* Altura base en escritorio */
       min-height: 550px;
     }
-
-    /* Lista de reservas (mis reservas / admin) */
     ul.reservation-list {
       list-style: none;
       padding-left: 0;
       margin: 0.4rem 0 0;
     }
-
     ul.reservation-list li {
       margin-bottom: 0.4rem;
       border-bottom: 1px dashed #ddd;
@@ -183,25 +177,13 @@
       gap: 0.5rem;
       align-items: flex-start;
     }
-
-    ul.reservation-list li span {
-      display: block;
-    }
-
     .reservation-text {
       flex: 1;
     }
-
     .reservation-actions button {
       font-size: 0.75rem;
       padding: 0.25rem 0.4rem;
     }
-
-    /* Ajustes de calendario en móvil:
-       - Fecha/título más chico
-       - Cabeceras + horas más chicas
-       - Calendario más alto para que sea usable en pantallas pequeñas
-    */
     @media (max-width: 600px) {
       .fc .fc-toolbar-title {
         font-size: 1rem;
@@ -218,89 +200,82 @@
 </head>
 <body>
   <header>
-    <h1>Sistema de Reservas de Equipamiento</h1>
-    <div class="user-info">
-      <span id="userEmailLabel">No has iniciado sesión</span>
+    <h1 data-i18n="title">Sistema de Reservas de Equipamiento</h1>
+    <div class="header-right">
+      <div class="user-info">
+        <span id="userEmailLabel" data-i18n="notLoggedIn">No has iniciado sesión</span>
+      </div>
+      <div>
+        <span class="lang-select-label" data-i18n="languageLabel">Idioma / Language / 言語:</span>
+        <select id="langSelect">
+          <option value="es">Español</option>
+          <option value="en">English</option>
+          <option value="ja">日本語</option>
+        </select>
+      </div>
     </div>
   </header>
 
   <main>
     <div class="layout">
-      <!--
-        COLUMNA IZQUIERDA:
-        - Login / logout
-        - Gestión de contraseña
-        - Bloque "Mis reservas" pegado visualmente al panel de usuario
-      -->
       <section class="card">
-        <h2>Acceso de usuarios</h2>
+        <h2 data-i18n="accessTitle">Acceso de usuarios</h2>
 
-        <!-- Sección visible cuando NO hay usuario logueado -->
         <div id="authSection">
-          <label for="email">Email</label>
-          <input type="email" id="email" placeholder="usuario@ejemplo.com" />
+          <label for="email" data-i18n="emailLabel">Email</label>
+          <input type="email" id="email" placeholder="usuario@ejemplo.com" data-i18n-placeholder="emailPlaceholder" />
 
-          <label for="password">Contraseña</label>
-          <input type="password" id="password" placeholder="********" />
+          <label for="password" data-i18n="passwordLabel">Contraseña</label>
+          <input type="password" id="password" placeholder="********" data-i18n-placeholder="passwordPlaceholder" />
 
           <div class="btn-group">
-            <button id="loginBtn" class="btn-primary">Iniciar sesión</button>
-            <button id="forgotPasswordBtn" class="btn-secondary">Olvidé mi contraseña</button>
+            <button id="loginBtn" class="btn-primary" data-i18n="loginBtn">Iniciar sesión</button>
+            <button id="forgotPasswordBtn" class="btn-secondary" data-i18n="forgotPasswordBtn">Olvidé mi contraseña</button>
           </div>
 
           <div class="status" id="authStatus"></div>
 
-          <p class="small-text">
+          <p class="small-text" data-i18n="noUserText">
             Si no tienes usuario, solicita uno al administrador.
           </p>
         </div>
 
-        <!-- Sección visible cuando SÍ hay usuario logueado -->
         <div id="logoutSection" style="display:none;">
-          <p>Sesión iniciada como:</p>
+          <p data-i18n="loggedInAs">Sesión iniciada como:</p>
           <p class="small-text" id="loggedUserEmail"></p>
 
           <div class="btn-group">
-            <button id="changePasswordBtn" class="btn-secondary">Cambiar contraseña</button>
-            <button id="logoutBtn" class="btn-danger">Cerrar sesión</button>
+            <button id="changePasswordBtn" class="btn-secondary" data-i18n="changePasswordBtn">Cambiar contraseña</button>
+            <button id="logoutBtn" class="btn-danger" data-i18n="logoutBtn">Cerrar sesión</button>
           </div>
 
           <div class="status small-text" id="passwordStatus"></div>
         </div>
 
-        <!--
-          Bloque "Mis reservas"
-          - Pegado visualmente al panel de usuario
-          - Se muestra sólo cuando hay sesión
-        -->
         <div id="myReservationsBlock" style="display:none; margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid var(--border);">
-          <h3 style="margin: 0 0 0.5rem 0; font-size: 1rem;">Mis reservas</h3>
-          <p class="small-text" id="myReservationsInfo">No tienes reservas.</p>
+          <h3 style="margin: 0 0 0.5rem 0; font-size: 1rem;" data-i18n="myReservationsTitle">Mis reservas</h3>
+          <p class="small-text" id="myReservationsInfo" data-i18n="noReservationsText">No tienes reservas.</p>
           <ul id="myReservationsList" class="reservation-list"></ul>
         </div>
       </section>
 
-      <!--
-        COLUMNA DERECHA (fila 1):
-        Calendario principal + selectores de sala y equipo
-      -->
       <section class="card">
-        <h2>Calendario de reservas</h2>
+        <h2 data-i18n="calendarTitle">Calendario de reservas</h2>
 
         <div class="toolbar">
           <div class="toolbar-item">
-            <label for="labSelect">Sala / LAB</label>
+            <label for="labSelect" data-i18n="labLabel">Sala / LAB</label>
             <select id="labSelect"></select>
           </div>
 
           <div class="toolbar-item">
-            <label for="equipmentSelect">Equipo</label>
+            <label for="equipmentSelect" data-i18n="equipmentLabel">Equipo</label>
             <select id="equipmentSelect"></select>
           </div>
 
           <div class="toolbar-item">
-            <label>Instrucciones</label>
-            <span class="small-text">
+            <label data-i18n="instructionsLabel">Instrucciones</label>
+            <span class="small-text" id="instructionsText" data-i18n="instructionsText">
               Inicia sesión, elige sala y equipo, y arrastra en el calendario para reservar en bloques de 15 minutos.
               No se permiten reservas en el pasado ni superpuestas.
             </span>
@@ -310,26 +285,17 @@
         <div id="calendar"></div>
       </section>
 
-      <!--
-        COLUMNA DERECHA (fila 2):
-        Vista de administrador (solo lectura)
-      -->
       <section class="card" id="adminSection" style="display:none;">
-        <h2>Vista administrador</h2>
-        <p class="small-text">
-          Lista de todas las reservas (solo lectura).
-          Configura los correos de administradores en el código.
+        <h2 data-i18n="adminTitle">Vista administrador</h2>
+        <p class="small-text" data-i18n="adminDescription">
+          Lista de todas las reservas (solo lectura). Configura los correos de administradores en el código.
         </p>
         <ul id="adminReservationsList" class="reservation-list"></ul>
       </section>
     </div>
   </main>
 
-  <!-- Lógica Firebase + FullCalendar -->
   <script type="module">
-    // ---------------------------------------------------------
-    // 1) Importes de Firebase (SDK modular)
-    // ---------------------------------------------------------
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
     import {
       getAuth,
@@ -339,7 +305,6 @@
       sendPasswordResetEmail,
       updatePassword
     } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
-
     import {
       getFirestore,
       collection,
@@ -353,9 +318,6 @@
       deleteDoc
     } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 
-    // ---------------------------------------------------------
-    // 2) Configuración Firebase
-    // ---------------------------------------------------------
     const firebaseConfig = {
       apiKey: "AIzaSyA98AI1BeF-f6WWiQHe_bKoBe0KlaFwfcE",
       authDomain: "laboratory-schedules.firebaseapp.com",
@@ -366,24 +328,8 @@
     const auth = getAuth(app);
     const db   = getFirestore(app);
 
-    // ---------------------------------------------------------
-    // 3) Configuración de administradores por email
-    //    - Edita esta lista con los mails que tendrán vista admin
-    // ---------------------------------------------------------
-    const ADMIN_EMAILS = [
-      "leo@example.com"
-      // Agrega aquí otros correos de admins si hace falta
-    ];
+    const ADMIN_EMAILS = ["leo@example.com"];
 
-    function isAdminEmail(email) {
-      if (!email) return false;
-      return ADMIN_EMAILS.includes(email.toLowerCase());
-    }
-
-    // ---------------------------------------------------------
-    // 4) Definición de salas (LABS) y equipos
-    //    - Doble selector: primero sala, luego equipo
-    // ---------------------------------------------------------
     const LABS = [
       {
         id: "lab403_cultivo",
@@ -439,9 +385,191 @@
       }
     ];
 
-    // ---------------------------------------------------------
-    // 5) Referencias al DOM
-    // ---------------------------------------------------------
+    const LANG = {
+      es: {
+        title: "Sistema de Reservas de Equipamiento",
+        notLoggedIn: "No has iniciado sesión",
+        languageLabel: "Idioma / Language / 言語:",
+        accessTitle: "Acceso de usuarios",
+        emailLabel: "Email",
+        emailPlaceholder: "usuario@ejemplo.com",
+        passwordLabel: "Contraseña",
+        passwordPlaceholder: "********",
+        loginBtn: "Iniciar sesión",
+        forgotPasswordBtn: "Olvidé mi contraseña",
+        noUserText: "Si no tienes usuario, solicita uno al administrador.",
+        loggedInAs: "Sesión iniciada como:",
+        changePasswordBtn: "Cambiar contraseña",
+        logoutBtn: "Cerrar sesión",
+        myReservationsTitle: "Mis reservas",
+        noReservationsText: "No tienes reservas.",
+        calendarTitle: "Calendario de reservas",
+        labLabel: "Sala / LAB",
+        equipmentLabel: "Equipo",
+        instructionsLabel: "Instrucciones",
+        instructionsText: "Inicia sesión, elige sala y equipo, y arrastra en el calendario para reservar en bloques de 15 minutos. No se permiten reservas en el pasado ni superpuestas.",
+        adminTitle: "Vista administrador",
+        adminDescription: "Lista de todas las reservas (solo lectura). Configura los correos de administradores en el código.",
+        errorFillEmailPassword: "Completa email y contraseña.",
+        loginSuccess: "Inicio de sesión correcto.",
+        errorResetEmailMissing: "Ingresa tu email para enviar el enlace de recuperación.",
+        resetEmailSent: "Se ha enviado un correo para restablecer la contraseña (si el email está registrado).",
+        changePasswordNeedLogin: "Debes iniciar sesión para cambiar tu contraseña.",
+        passwordUpdated: "Contraseña actualizada correctamente.",
+        cannotReserveWithoutLogin: "Debes iniciar sesión para reservar.",
+        cannotReservePast: "No se pueden hacer reservas en el pasado.",
+        overlapError: "Ya existe una reserva superpuesta para este equipo en ese horario.",
+        cancelReservationQuestion: "¿Cancelar esta reserva?",
+        cancelReservationError: "No se pudo cancelar la reserva: ",
+        noReservationsAdmin: "No hay reservas registradas.",
+        confirmLab: "Sala/LAB",
+        confirmEquipment: "Equipo",
+        confirmUser: "Usuario",
+        confirmStart: "Inicio",
+        confirmEnd: "Fin",
+        confirmDuration: "Duración",
+        minutesWord: "minutos",
+        confirmQuestion: "¿Confirmar reserva?"
+      },
+      en: {
+        title: "Equipment Booking System",
+        notLoggedIn: "You are not logged in",
+        languageLabel: "Language / Idioma / 言語:",
+        accessTitle: "User access",
+        emailLabel: "Email",
+        emailPlaceholder: "user@example.com",
+        passwordLabel: "Password",
+        passwordPlaceholder: "********",
+        loginBtn: "Log in",
+        forgotPasswordBtn: "Forgot my password",
+        noUserText: "If you don't have an account, please contact the administrator.",
+        loggedInAs: "Logged in as:",
+        changePasswordBtn: "Change password",
+        logoutBtn: "Log out",
+        myReservationsTitle: "My bookings",
+        noReservationsText: "You have no bookings.",
+        calendarTitle: "Booking calendar",
+        labLabel: "Room / LAB",
+        equipmentLabel: "Equipment",
+        instructionsLabel: "Instructions",
+        instructionsText: "Log in, select a room and equipment, then drag on the calendar to book in 15-minute blocks. Past and overlapping bookings are not allowed.",
+        adminTitle: "Admin view",
+        adminDescription: "List of all bookings (read-only). Configure admin email addresses in the code.",
+        errorFillEmailPassword: "Please fill in email and password.",
+        loginSuccess: "Login successful.",
+        errorResetEmailMissing: "Enter your email to send the reset link.",
+        resetEmailSent: "A password reset email has been sent (if the email is registered).",
+        changePasswordNeedLogin: "You must be logged in to change your password.",
+        passwordUpdated: "Password updated successfully.",
+        cannotReserveWithoutLogin: "You must be logged in to book.",
+        cannotReservePast: "You cannot book in the past.",
+        overlapError: "There is already an overlapping booking for this equipment at that time.",
+        cancelReservationQuestion: "Cancel this booking?",
+        cancelReservationError: "Could not cancel the booking: ",
+        noReservationsAdmin: "There are no bookings.",
+        confirmLab: "Room/LAB",
+        confirmEquipment: "Equipment",
+        confirmUser: "User",
+        confirmStart: "Start",
+        confirmEnd: "End",
+        confirmDuration: "Duration",
+        minutesWord: "minutes",
+        confirmQuestion: "Confirm this booking?"
+      },
+      ja: {
+        title: "機器予約システム",
+        notLoggedIn: "未ログインです",
+        languageLabel: "言語 / Language / Idioma:",
+        accessTitle: "ユーザーアクセス",
+        emailLabel: "メールアドレス",
+        emailPlaceholder: "user@example.com",
+        passwordLabel: "パスワード",
+        passwordPlaceholder: "********",
+        loginBtn: "ログイン",
+        forgotPasswordBtn: "パスワードをお忘れの場合",
+        noUserText: "アカウントがない場合は、管理者にお問い合わせください。",
+        loggedInAs: "ログイン中：",
+        changePasswordBtn: "パスワード変更",
+        logoutBtn: "ログアウト",
+        myReservationsTitle: "自分の予約",
+        noReservationsText: "現在、予約はありません。",
+        calendarTitle: "予約カレンダー",
+        labLabel: "部屋 / ラボ",
+        equipmentLabel: "機器",
+        instructionsLabel: "使用方法",
+        instructionsText: "ログイン後、部屋と機器を選択し、カレンダー上でドラッグして15分単位で予約してください。過去や重複する時間帯には予約できません。",
+        adminTitle: "管理者ビュー",
+        adminDescription: "すべての予約一覧（閲覧のみ）。管理者メールアドレスはコード内で設定してください。",
+        errorFillEmailPassword: "メールアドレスとパスワードを入力してください。",
+        loginSuccess: "ログインに成功しました。",
+        errorResetEmailMissing: "メールアドレスを入力してください。",
+        resetEmailSent: "パスワード再設定メールを送信しました（登録されている場合）。",
+        changePasswordNeedLogin: "パスワード変更にはログインが必要です。",
+        passwordUpdated: "パスワードを更新しました。",
+        cannotReserveWithoutLogin: "予約するにはログインが必要です。",
+        cannotReservePast: "過去の時間には予約できません。",
+        overlapError: "この時間帯には既に予約があります。",
+        cancelReservationQuestion: "この予約をキャンセルしますか？",
+        cancelReservationError: "予約をキャンセルできませんでした：",
+        noReservationsAdmin: "予約はありません。",
+        confirmLab: "部屋/ラボ",
+        confirmEquipment: "機器",
+        confirmUser: "ユーザー",
+        confirmStart: "開始",
+        confirmEnd: "終了",
+        confirmDuration: "時間",
+        minutesWord: "分",
+        confirmQuestion: "この内容で予約しますか？"
+      }
+    };
+
+    let currentLang = "es";
+    const savedLang = localStorage.getItem("labSchedulerLang");
+    if (savedLang && LANG[savedLang]) currentLang = savedLang;
+
+    const langSelect = document.getElementById("langSelect");
+    langSelect.value = currentLang;
+
+    function t(key) {
+      const pack = LANG[currentLang] || LANG.es;
+      return pack[key] || key;
+    }
+
+    function browserLocale() {
+      if (currentLang === "en") return "en-US";
+      if (currentLang === "ja") return "ja-JP";
+      return "es-ES";
+    }
+
+    function fcLocale() {
+      if (currentLang === "en") return "en";
+      if (currentLang === "ja") return "ja";
+      return "es";
+    }
+
+    function applyI18n() {
+      document.querySelectorAll("[data-i18n]").forEach(el => {
+        const key = el.getAttribute("data-i18n");
+        el.textContent = t(key);
+      });
+      document.querySelectorAll("[data-i18n-placeholder]").forEach(el => {
+        const key = el.getAttribute("data-i18n-placeholder");
+        el.placeholder = t(key);
+      });
+      if (calendar) {
+        calendar.setOption("locale", fcLocale());
+        calendar.render();
+      }
+    }
+
+    langSelect.addEventListener("change", () => {
+      const newLang = langSelect.value;
+      if (!LANG[newLang]) return;
+      currentLang = newLang;
+      localStorage.setItem("labSchedulerLang", currentLang);
+      applyI18n();
+    });
+
     const loginBtn          = document.getElementById("loginBtn");
     const logoutBtn         = document.getElementById("logoutBtn");
     const changePasswordBtn = document.getElementById("changePasswordBtn");
@@ -455,24 +583,31 @@
     const loggedUserEmail   = document.getElementById("loggedUserEmail");
     const passwordStatus    = document.getElementById("passwordStatus");
 
-    const labSelect         = document.getElementById("labSelect");
+    const labSelectEl       = document.getElementById("labSelect");
     const equipmentSelect   = document.getElementById("equipmentSelect");
 
     const myReservationsBlock = document.getElementById("myReservationsBlock");
     const myReservationsInfo  = document.getElementById("myReservationsInfo");
     const myReservationsList  = document.getElementById("myReservationsList");
 
-    const adminSection          = document.getElementById("adminSection");
+    const adminSection       = document.getElementById("adminSection");
     const adminReservationsList = document.getElementById("adminReservationsList");
 
-    // ---------------------------------------------------------
-    // 6) Poblar selectores de LAB y equipos
-    // ---------------------------------------------------------
-    function populateEquipmentsForLab(labId) {
+    function populateLabs() {
+      labSelectEl.innerHTML = "";
+      LABS.forEach(lab => {
+        const opt = document.createElement("option");
+        opt.value = lab.id;
+        opt.textContent = lab.name;
+        labSelectEl.appendChild(opt);
+      });
+      if (LABS.length) populateEquipments(LABS[0].id);
+    }
+
+    function populateEquipments(labId) {
       equipmentSelect.innerHTML = "";
       const lab = LABS.find(l => l.id === labId);
       if (!lab) return;
-
       lab.equipments.forEach(eq => {
         const opt = document.createElement("option");
         opt.value = eq.id;
@@ -481,63 +616,30 @@
       });
     }
 
-    function populateLabsAndEquipments() {
-      labSelect.innerHTML = "";
-      equipmentSelect.innerHTML = "";
-
-      LABS.forEach(lab => {
-        const opt = document.createElement("option");
-        opt.value = lab.id;
-        opt.textContent = lab.name;
-        labSelect.appendChild(opt);
-      });
-
-      if (LABS.length > 0) {
-        populateEquipmentsForLab(LABS[0].id);
-      }
-    }
-
-    labSelect.addEventListener("change", () => {
-      const labId = labSelect.value;
-      populateEquipmentsForLab(labId);
-
-      if (equipmentSelect.value) {
-        subscribeToEquipmentReservations(equipmentSelect.value);
-      }
+    labSelectEl.addEventListener("change", () => {
+      populateEquipments(labSelectEl.value);
+      if (equipmentSelect.value) subscribeToEquipmentReservations(equipmentSelect.value);
     });
 
     equipmentSelect.addEventListener("change", () => {
-      if (equipmentSelect.value) {
-        subscribeToEquipmentReservations(equipmentSelect.value);
-      }
+      if (equipmentSelect.value) subscribeToEquipmentReservations(equipmentSelect.value);
     });
 
-    // Inicializamos selects al cargar el script
-    populateLabsAndEquipments();
+    populateLabs();
 
-    // ---------------------------------------------------------
-    // 7) Estado global: calendario, usuario, listeners
-    // ---------------------------------------------------------
     let calendar = null;
-    let unsubscribeReservations = null;
     let currentUser = null;
+    let unsubReservations = null;
+    let myResUnsub = null;
+    let adminResUnsub = null;
 
-    let myReservationsUnsub    = null;
-    let adminReservationsUnsub = null;
-
-    // ---------------------------------------------------------
-    // 8) Inicializar FullCalendar
-    //    - Grilla de 15 minutos
-    //    - label cada 15 minutos
-    //    - formato 24h HH:mm
-    // ---------------------------------------------------------
     const calendarEl = document.getElementById("calendar");
     calendar = new FullCalendar.Calendar(calendarEl, {
       initialView: "timeGridWeek",
-      locale: "es",
+      locale: fcLocale(),
       slotDuration: "00:15:00",
       snapDuration: "00:15:00",
-      slotLabelInterval: { minutes: 15 }, // fuerza etiquetas cada 15 minutos
+      slotLabelInterval: { minutes: 15 },
       slotLabelFormat: { hour: "2-digit", minute: "2-digit", hour12: false },
       eventTimeFormat: { hour: "2-digit", minute: "2-digit", hour12: false },
       slotMinTime: "07:00:00",
@@ -551,319 +653,235 @@
         center: "title",
         right: "timeGridDay,timeGridWeek,dayGridMonth"
       },
-      // Sólo permitir seleccionar si hay usuario logueado
       selectAllow: () => !!currentUser,
-      // Maneja la creación de una reserva al seleccionar un rango
       select: handleDateSelect
     });
-
     calendar.render();
+    applyI18n();
 
-    // Si ya hay un equipo seleccionado, suscribimos sus reservas
     if (equipmentSelect.value) {
       subscribeToEquipmentReservations(equipmentSelect.value);
     }
 
-    // ---------------------------------------------------------
-    // 9) Lógica de autenticación (login / logout / password)
-    // ---------------------------------------------------------
     loginBtn.addEventListener("click", async () => {
       authStatus.textContent = "";
       authStatus.classList.remove("error");
       passwordStatus.textContent = "";
-
       try {
         const email = emailInput.value.trim();
         const pass  = passwordInput.value;
-
         if (!email || !pass) {
-          authStatus.textContent = "Completa email y contraseña.";
+          authStatus.textContent = t("errorFillEmailPassword");
           authStatus.classList.add("error");
           return;
         }
-
         await signInWithEmailAndPassword(auth, email, pass);
-        authStatus.textContent = "Inicio de sesión correcto.";
+        authStatus.textContent = t("loginSuccess");
       } catch (err) {
-        authStatus.textContent = "Error al iniciar sesión: " + err.message;
+        authStatus.textContent = err.message;
         authStatus.classList.add("error");
         console.error(err);
       }
     });
 
-    // Enviar mail de recuperación de contraseña
     forgotPasswordBtn.addEventListener("click", async () => {
       authStatus.textContent = "";
       authStatus.classList.remove("error");
       const email = emailInput.value.trim();
-
       if (!email) {
-        authStatus.textContent = "Ingresa tu email para enviar el enlace de recuperación.";
+        authStatus.textContent = t("errorResetEmailMissing");
         authStatus.classList.add("error");
         return;
       }
-
       try {
         await sendPasswordResetEmail(auth, email);
-        authStatus.textContent = "Se ha enviado un correo para restablecer la contraseña (si el email está registrado).";
+        authStatus.textContent = t("resetEmailSent");
       } catch (err) {
-        authStatus.textContent = "Error al enviar el correo de recuperación: " + err.message;
+        authStatus.textContent = err.message;
         authStatus.classList.add("error");
         console.error(err);
       }
     });
 
-    // Cambio de contraseña estando logueado
     changePasswordBtn.addEventListener("click", async () => {
       passwordStatus.textContent = "";
       passwordStatus.classList.remove("error");
-
       if (!currentUser) {
-        passwordStatus.textContent = "Debes iniciar sesión para cambiar tu contraseña.";
+        passwordStatus.textContent = t("changePasswordNeedLogin");
         passwordStatus.classList.add("error");
         return;
       }
-
-      const newPass = prompt("Ingresa la nueva contraseña:");
-      if (!newPass) {
-        return;
-      }
-
+      const newPass = prompt(t("changePasswordBtn"));
+      if (!newPass) return;
       try {
         await updatePassword(currentUser, newPass);
-        passwordStatus.textContent = "Contraseña actualizada correctamente.";
+        passwordStatus.textContent = t("passwordUpdated");
       } catch (err) {
-        passwordStatus.textContent = "No se pudo cambiar la contraseña: " + err.message;
+        passwordStatus.textContent = err.message;
         passwordStatus.classList.add("error");
         console.error(err);
       }
     });
 
-    // Cerrar sesión
     logoutBtn.addEventListener("click", async () => {
       await signOut(auth);
     });
 
-    // Listener central de cambios de sesión
+    function isAdmin(email) {
+      if (!email) return false;
+      return ADMIN_EMAILS.includes(email.toLowerCase());
+    }
+
     onAuthStateChanged(auth, (user) => {
       currentUser = user;
       authStatus.textContent = "";
       passwordStatus.textContent = "";
-
       if (user) {
-        // Usuario logueado
         authSection.style.display   = "none";
         logoutSection.style.display = "block";
         userEmailLabel.textContent  = user.email;
         loggedUserEmail.textContent = user.email;
-
-        // Mis reservas (sección pegada al panel de usuario)
         startMyReservationsListener(user.uid);
-
-        // Vista de administrador
-        if (isAdminEmail(user.email)) {
-          startAdminReservationsListener();
-        } else {
-          stopAdminReservationsListener();
-        }
+        if (isAdmin(user.email)) startAdminReservationsListener();
+        else stopAdminReservationsListener();
       } else {
-        // Sin usuario
         authSection.style.display   = "block";
         logoutSection.style.display = "none";
-        userEmailLabel.textContent  = "No has iniciado sesión";
+        userEmailLabel.textContent  = t("notLoggedIn");
         loggedUserEmail.textContent = "";
-
         stopMyReservationsListener();
         stopAdminReservationsListener();
       }
     });
 
-    // ---------------------------------------------------------
-    // 10) Suscripción a reservas por equipo (para el calendario)
-    // ---------------------------------------------------------
     function subscribeToEquipmentReservations(equipmentId) {
-      if (unsubscribeReservations) {
-        unsubscribeReservations();
-        unsubscribeReservations = null;
+      if (unsubReservations) {
+        unsubReservations();
+        unsubReservations = null;
       }
-
-      const q = query(
-        collection(db, "reservations"),
-        where("equipmentId", "==", equipmentId)
-      );
-
-      unsubscribeReservations = onSnapshot(q, (snapshot) => {
+      const q = query(collection(db, "reservations"), where("equipmentId", "==", equipmentId));
+      unsubReservations = onSnapshot(q, snap => {
         if (!calendar) return;
-
         calendar.removeAllEvents();
-
         const events = [];
-        snapshot.forEach(docSnap => {
-          const data = docSnap.data();
-          const start = data.start instanceof Timestamp ? data.start.toDate() : data.start;
-          const end   = data.end   instanceof Timestamp ? data.end.toDate()   : data.end;
-
-          const labLabel  = data.labName || data.labId || "";
-          const eqLabel   = data.equipmentName || data.equipmentId || "Equipo";
-          const userLabel = data.userEmail || "Reserva";
-
+        snap.forEach(docSnap => {
+          const d = docSnap.data();
+          const start = d.start instanceof Timestamp ? d.start.toDate() : d.start;
+          const end   = d.end   instanceof Timestamp ? d.end.toDate()   : d.end;
+          const labLabel = d.labName || d.labId || "";
+          const eqLabel  = d.equipmentName || d.equipmentId || "Equipo";
+          const userLabel= d.userEmail || "";
           let title = `${eqLabel} (${userLabel})`;
-          if (labLabel) {
-            title = `${labLabel} – ${eqLabel} (${userLabel})`;
-          }
-
-          events.push({
-            id: docSnap.id,
-            title,
-            start,
-            end,
-            extendedProps: {
-              labId: data.labId,
-              labName: data.labName,
-              equipmentId: data.equipmentId,
-              equipmentName: data.equipmentName,
-              userId: data.userId,
-              userEmail: data.userEmail
-            }
-          });
+          if (labLabel) title = `${labLabel} – ${eqLabel} (${userLabel})`;
+          events.push({ id: docSnap.id, title, start, end });
         });
-
-        // Orden cronológico de eventos
-        events.sort((a, b) => a.start - b.start);
+        events.sort((a,b) => a.start - b.start);
         events.forEach(ev => calendar.addEvent(ev));
-      }, (error) => {
-        console.error("Error escuchando reservas:", error);
-      });
+      }, err => console.error(err));
     }
 
-    // ---------------------------------------------------------
-    // 11) "Mis reservas" (pegado al panel de usuario)
-    // ---------------------------------------------------------
-    function startMyReservationsListener(userId) {
+    function startMyReservationsListener(uid) {
       stopMyReservationsListener();
-
-      const q = query(
-        collection(db, "reservations"),
-        where("userId", "==", userId)
-      );
-
-      myReservationsUnsub = onSnapshot(q, (snapshot) => {
+      const q = query(collection(db, "reservations"), where("userId", "==", uid));
+      myResUnsub = onSnapshot(q, snap => {
         const items = [];
-        snapshot.forEach(docSnap => {
-          const data = docSnap.data();
-          const start = data.start instanceof Timestamp ? data.start.toDate() : data.start;
-          const end   = data.end   instanceof Timestamp ? data.end.toDate()   : data.end;
-
+        snap.forEach(docSnap => {
+          const d = docSnap.data();
+          const start = d.start instanceof Timestamp ? d.start.toDate() : d.start;
+          const end   = d.end   instanceof Timestamp ? d.end.toDate()   : d.end;
           items.push({
             id: docSnap.id,
             start,
             end,
-            labName: data.labName || data.labId || "",
-            equipmentName: data.equipmentName || data.equipmentId || ""
+            labName: d.labName || d.labId || "",
+            equipmentName: d.equipmentName || d.equipmentId || ""
           });
         });
-
-        items.sort((a, b) => a.start - b.start);
+        items.sort((a,b) => a.start - b.start);
         renderMyReservations(items);
       });
-
-      // Mostrar el bloque pegado al panel de usuario
       myReservationsBlock.style.display = "block";
     }
 
     function stopMyReservationsListener() {
-      if (myReservationsUnsub) {
-        myReservationsUnsub();
-        myReservationsUnsub = null;
+      if (myResUnsub) {
+        myResUnsub();
+        myResUnsub = null;
       }
       myReservationsBlock.style.display = "none";
       myReservationsList.innerHTML = "";
-      myReservationsInfo.textContent = "No tienes reservas.";
+      myReservationsInfo.textContent = t("noReservationsText");
     }
 
     function renderMyReservations(items) {
       if (!items.length) {
-        myReservationsInfo.textContent = "No tienes reservas.";
+        myReservationsInfo.textContent = t("noReservationsText");
         myReservationsList.innerHTML = "";
         return;
       }
-
       myReservationsInfo.textContent = "";
       myReservationsList.innerHTML = "";
-
+      const loc = browserLocale();
       items.forEach(item => {
         const li = document.createElement("li");
-
         const textDiv = document.createElement("div");
         textDiv.className = "reservation-text";
-
-        const dateStr = item.start.toLocaleDateString();
+        const dateStr = item.start.toLocaleDateString(loc);
         const timeStr =
           item.start.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false }) +
           " - " +
           item.end.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false });
-
         textDiv.innerHTML = `
           <span><strong>${item.labName}</strong> – ${item.equipmentName}</span>
           <span>${dateStr} ${timeStr}</span>
         `;
-
         const actionsDiv = document.createElement("div");
         actionsDiv.className = "reservation-actions";
         const cancelBtn = document.createElement("button");
         cancelBtn.className = "btn-danger";
-        cancelBtn.textContent = "Cancelar";
+        cancelBtn.textContent = currentLang === "en" ? "Cancel" : (currentLang === "ja" ? "キャンセル" : "Cancelar");
         cancelBtn.addEventListener("click", async () => {
-          if (!confirm("¿Cancelar esta reserva?")) return;
+          if (!confirm(t("cancelReservationQuestion"))) return;
           try {
             await deleteDoc(doc(db, "reservations", item.id));
           } catch (err) {
-            alert("No se pudo cancelar la reserva: " + err.message);
-            console.error(err);
+            alert(t("cancelReservationError") + err.message);
           }
         });
         actionsDiv.appendChild(cancelBtn);
-
         li.appendChild(textDiv);
         li.appendChild(actionsDiv);
         myReservationsList.appendChild(li);
       });
     }
 
-    // ---------------------------------------------------------
-    // 12) Vista administrador (solo lectura)
-    // ---------------------------------------------------------
     function startAdminReservationsListener() {
       stopAdminReservationsListener();
-
-      adminReservationsUnsub = onSnapshot(collection(db, "reservations"), (snapshot) => {
+      adminResUnsub = onSnapshot(collection(db, "reservations"), snap => {
         const items = [];
-        snapshot.forEach(docSnap => {
-          const data = docSnap.data();
-          const start = data.start instanceof Timestamp ? data.start.toDate() : data.start;
-          const end   = data.end   instanceof Timestamp ? data.end.toDate()   : data.end;
-
+        snap.forEach(docSnap => {
+          const d = docSnap.data();
+          const start = d.start instanceof Timestamp ? d.start.toDate() : d.start;
+          const end   = d.end   instanceof Timestamp ? d.end.toDate()   : d.end;
           items.push({
             id: docSnap.id,
             start,
             end,
-            labName: data.labName || data.labId || "",
-            equipmentName: data.equipmentName || data.equipmentId || "",
-            userEmail: data.userEmail || ""
+            labName: d.labName || d.labId || "",
+            equipmentName: d.equipmentName || d.equipmentId || "",
+            userEmail: d.userEmail || ""
           });
         });
-
-        items.sort((a, b) => a.start - b.start);
+        items.sort((a,b) => a.start - b.start);
         renderAdminReservations(items);
       });
-
       adminSection.style.display = "block";
     }
 
     function stopAdminReservationsListener() {
-      if (adminReservationsUnsub) {
-        adminReservationsUnsub();
-        adminReservationsUnsub = null;
+      if (adminResUnsub) {
+        adminResUnsub();
+        adminResUnsub = null;
       }
       adminSection.style.display = "none";
       adminReservationsList.innerHTML = "";
@@ -871,104 +889,75 @@
 
     function renderAdminReservations(items) {
       adminReservationsList.innerHTML = "";
-
       if (!items.length) {
         const li = document.createElement("li");
-        li.textContent = "No hay reservas registradas.";
+        li.textContent = t("noReservationsAdmin");
         adminReservationsList.appendChild(li);
         return;
       }
-
+      const loc = browserLocale();
       items.forEach(item => {
         const li = document.createElement("li");
-
         const textDiv = document.createElement("div");
         textDiv.className = "reservation-text";
-
-        const dateStr = item.start.toLocaleDateString();
+        const dateStr = item.start.toLocaleDateString(loc);
         const timeStr =
           item.start.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false }) +
           " - " +
           item.end.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false });
-
         textDiv.innerHTML = `
           <span><strong>${item.labName}</strong> – ${item.equipmentName}</span>
           <span>${dateStr} ${timeStr}</span>
           <span class="small-text">${item.userEmail}</span>
         `;
-
         li.appendChild(textDiv);
         adminReservationsList.appendChild(li);
       });
     }
 
-    // ---------------------------------------------------------
-    // 13) Crear reserva al seleccionar en el calendario
-    //     - Bloques de 15 minutos
-    //     - No permitir pasado
-    //     - Evitar solapamientos
-    // ---------------------------------------------------------
-    async function handleDateSelect(selectionInfo) {
+    async function handleDateSelect(info) {
       if (!currentUser) {
-        alert("Debes iniciar sesión para reservar.");
+        alert(t("cannotReserveWithoutLogin"));
         calendar.unselect();
         return;
       }
-
-      const labId       = labSelect.value;
+      const labId = labSelectEl.value;
       const equipmentId = equipmentSelect.value;
-
       const lab = LABS.find(l => l.id === labId);
       const eq  = lab?.equipments.find(e => e.id === equipmentId);
-
-      const start = selectionInfo.start;
-      const end   = selectionInfo.end;
-
-      // No permitir reservas en el pasado (según hora de inicio)
+      const start = info.start;
+      const end   = info.end;
       const now = new Date();
       if (start < now) {
-        alert("No se pueden hacer reservas en el pasado.");
+        alert(t("cannotReservePast"));
         calendar.unselect();
         return;
       }
-
-      // Verificar solapamiento con eventos ya cargados en el calendario
-      const existingEvents = calendar.getEvents();
-      const overlaps = existingEvents.some(ev => {
-        const evStart = ev.start;
-        const evEnd   = ev.end;
-        if (!evStart || !evEnd) return false;
-        // Chequeo simple de solapamiento: [start, end) vs [evStart, evEnd)
-        return start < evEnd && end > evStart;
+      const overlap = calendar.getEvents().some(ev => {
+        const s = ev.start, e = ev.end;
+        if (!s || !e) return false;
+        return start < e && end > s;
       });
-
-      if (overlaps) {
-        alert("Ya existe una reserva superpuesta para este equipo en ese horario.");
+      if (overlap) {
+        alert(t("overlapError"));
         calendar.unselect();
         return;
       }
-
-      const durationMin = Math.round((end.getTime() - start.getTime()) / 60000);
-
-      const eqLabel  = eq ? eq.name : equipmentId;
+      const durMin = Math.round((end.getTime() - start.getTime())/60000);
       const labLabel = lab ? lab.name : labId;
-
-      const confirmText = `
-Sala/LAB: ${labLabel}
-Equipo: ${eqLabel}
-Usuario: ${currentUser.email}
-Inicio: ${start.toLocaleString()}
-Fin: ${end.toLocaleString()}
-Duración: ${durationMin} minutos
-
-¿Confirmar reserva?`;
-
-      const ok = confirm(confirmText);
-      if (!ok) {
+      const eqLabel  = eq  ? eq.name  : equipmentId;
+      const msg =
+        t("confirmLab") + ": " + labLabel + "\n" +
+        t("confirmEquipment") + ": " + eqLabel + "\n" +
+        t("confirmUser") + ": " + currentUser.email + "\n" +
+        t("confirmStart") + ": " + start.toLocaleString(browserLocale()) + "\n" +
+        t("confirmEnd")   + ": " + end.toLocaleString(browserLocale()) + "\n" +
+        t("confirmDuration") + ": " + durMin + " " + t("minutesWord") + "\n\n" +
+        t("confirmQuestion");
+      if (!confirm(msg)) {
         calendar.unselect();
         return;
       }
-
       try {
         await addDoc(collection(db, "reservations"), {
           labId,
@@ -982,10 +971,8 @@ Duración: ${durationMin} minutos
           createdAt: serverTimestamp()
         });
       } catch (err) {
-        console.error("Error creando reserva:", err);
-        alert("Error al crear la reserva: " + err.message);
+        alert("Error: " + err.message);
       }
-
       calendar.unselect();
     }
   </script>
