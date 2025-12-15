@@ -272,6 +272,17 @@
     height: 90px;
     object-fit: contain;
   }
+
+  @media (max-width: 600px) {
+  /* Solo para japonés: permitir quiebre de línea */
+    html[lang="ja"] .fc .fc-col-header-cell-cushion {
+      white-space: normal;
+      word-break: break-all;
+      line-height: 1.1;
+      text-align: center;
+    }
+  }
+
     
   </style>
 </head>
@@ -780,6 +791,9 @@
       renderAdminReservations(adminItemsCache);
       renderAdminStats(adminItemsCache);
       renderEquipmentStatus();
+
+      document.documentElement.lang = currentLang;
+
     }
 
     langSelect.addEventListener("change", () => {
