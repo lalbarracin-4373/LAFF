@@ -249,6 +249,19 @@
         min-height: 700px;
       }
     }
+  
+  .login-logo {
+    display: flex;
+    justify-content: center;
+    margin: 0.5rem 0 0.75rem 0;
+  }
+  
+  .login-logo img {
+    width: 90px;
+    height: 90px;
+    object-fit: contain;
+  }
+    
   </style>
 </head>
 <body>
@@ -274,7 +287,11 @@
       <!-- Columna izquierda: acceso + mis reservas -->
       <section class="card">
         <h2 data-i18n="accessTitle">Acceso de usuarios</h2>
-
+        
+        <div class="login-logo">
+          <img src="logo.png" alt="Lab logo">
+        </div>
+        
         <div id="authSection">
           <label for="email" data-i18n="emailLabel">Email</label>
           <input type="email" id="email" placeholder="usuario@ejemplo.com" data-i18n-placeholder="emailPlaceholder" />
