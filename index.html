@@ -736,6 +736,15 @@
       if (status === "out_of_service") return t("status_out");
       return t("status_unknown");
     }
+    
+    function isMobile() {
+      return window.matchMedia("(max-width: 600px)").matches;
+    }
+    
+    function weekdayJa(d) {
+      return ["日","月","火","水","木","金","土"][d.getDay()];
+    }
+    
 
     const loginBtn          = document.getElementById("loginBtn");
     const logoutBtn         = document.getElementById("logoutBtn");
@@ -819,7 +828,11 @@
       }
     }
 
+    if (calendar) calendar.render();
 
+   window.addEventListener("resize", () => {
+      if (calendar) calendar.render();
+    }); 
    
     function isAdmin(email) {
       if (!email) return false;
@@ -869,6 +882,19 @@
 
     const calendarEl = document.getElementById("calendar");
     calendar = new FullCalendar.Calendar(calendarEl, {
+
+      dayHeaderContent: function(arg) {
+        // Solo japonés + móvil: 2 líneas fijas
+        if (currentLang === "ja" && isMobile()) {
+          const d = arg.date;
+          const md = d.toLocaleDateString("ja-JP", { month: "numeric", day: "numeric" }); // 12/14
+          const wd = `(${weekdayJa(d)})`; // (日)
+          return { html: `<div>${md}</div><div>${wd}</div>` };
+        }
+        return true; // default para ES/EN y desktop
+      },
+
+      
       initialView: "timeGridWeek",
       locale: fcLocale(),
       slotDuration: "00:15:00",
