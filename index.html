@@ -1067,6 +1067,7 @@
     function startMyReservationsListener(uid) {
       stopMyReservationsListener();
       const q = query(collection(db, "reservations"), where("userId", "==", uid));
+
       myResUnsub = onSnapshot(q, snap => {
         const items = [];
         snap.forEach(docSnap => {
@@ -1081,9 +1082,14 @@
             equipmentName: d.equipmentName || d.equipmentId || ""
           });
         });
-        items.sort((a,b) => a.start - b.start);
-        renderMyReservations(items);
+      
+        const now = new Date();
+        const visible = items.filter(i => i.end > now);
+      
+        visible.sort((a,b) => a.start - b.start);
+        renderMyReservations(visible);
       });
+      
       myReservationsBlock.style.display = "block";
     }
 
