@@ -1163,10 +1163,17 @@
           });
         });
         items.sort((a,b) => a.start - b.start);
-        adminItemsCache = items;
+        const now = new Date();
+        const hoursBack = 48;
+        const cutoff = new Date(now.getTime() - hoursBack * 60 * 60 * 1000);
+        
+        const visible = items.filter(i => i.end > cutoff); // recientes + futuras
+        adminItemsCache = visible;
+        
         renderAdminReservations(adminItemsCache);
-        renderAdminStats(adminItemsCache);
+        renderAdminStats(items); // stats sí puede usar todo si querés
         renderEquipmentStatus();
+
       });
       adminSectionEl.style.display = "block";
     }
